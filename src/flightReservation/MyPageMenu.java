@@ -1,16 +1,13 @@
 import java.io.*;
-import java.util.ArrayList;
-import java.util.Iterator;
 import java.util.Scanner;
 
-public class MyPageMenu {
+public class nnewwMyPageMenu {
 
     User user;
-    ArrayList<Flight> list = new ArrayList<>();
-    ArrayList<FlightTicket> list2 = new ArrayList<>();
     static Scanner scan = new Scanner(System.in);
 
-    public nnewwMyPageMenu(User user) {	
+    public nnewwMyPageMenu(User user) {	//메인에서 로그인한 후에 그 회원에 해당하는 user객체를 생성해서 여러 클래스에서 공유해서 이용하도록 해야할 듯?
+        //생성자에서 인자로 user를 받아서 MypageMenu 클래스 내부 user 변수에 넣어주고 이용하거나 아니면 mainmenu에서 showmypage바로 호출?
         super();
         this.user = user;
         showMyPage();
@@ -65,36 +62,13 @@ public class MyPageMenu {
     }
     public void delete() {
         // TODO Auto-generated method stub
-
-        boolean s = false;
-
-        while (!s) {
-            System.out.println("취소할 비행편의 이름을 입력하세요.");
-            String name = scan.next();
-            String filename = user.getName() + ".txt";
-
-            //홍길동 gild1234
-            //A20 4/10 인천 로스앤젤레스 A항공 직항
-            //2 이코노미 21 22
-
-            Iterator<FlightTicket> it = user.getFlightTicketList().iterator();
-            while (it.hasNext()) {
-                FlightTicket f = it.next();
-                if (f.equals("name")) {  //FlightTicket class에서 equals 정의 필요
-                    it.remove();
-                    s = true;
-                }
-            }
-
-        }
     }
     public void change() {
         // TODO Auto-generated method stub
 
-
         boolean s = true;
         boolean find = false;
-        File newfile = new File("newfile.txt");
+        File newfile = new File("new"+user.getName()+user.getId()+".txt");
 
         System.out.println("변경할 비행편의 이름을 입력하세요.");
         while (s) {
@@ -104,16 +78,16 @@ public class MyPageMenu {
 
             try(Scanner scan = new Scanner(new File(filename))){  //파일 내용 읽어오기
 
-                FileWriter fileWriter = new FileWriter(newfile);
-                PrintWriter printWriter = new PrintWriter(fileWriter);
+                FileWriter fileWriter1 = new FileWriter(newfile);
+                PrintWriter printWriter1 = new PrintWriter(fileWriter1);
 
                 String str = scan.nextLine(); //이름 아이디 읽기.
-                printWriter.println(str); // 새 파일에 str 내용 붙여넣기
+                printWriter1.println(str); // 새 파일에 str 내용 붙여넣기
 
                 while(scan.hasNextLine()) {
 
                     String flight_str = scan.nextLine(); //비행편 정보 line scan
-                    printWriter.println(flight_str);  //그대로 새 파일에 붙여넣기
+                    printWriter1.println(flight_str);  //그대로 새 파일에 붙여넣기
                     String[] flight = flight_str.split(" "); //비행편 이름 골라내기 위해서
 
                     String flightTicket_str = scan.nextLine(); //비행기 티켓 정보 line
@@ -124,24 +98,56 @@ public class MyPageMenu {
                         s = false;
                         find = true;
                         int num = Integer.parseInt(flightTicket[0]); //티켓 인원을 int로 바꿔주기
-                        Iterator<FlightTicket> it = user.getFlightTicketList().iterator();
-                        while(it.hasNext()){ //다음 line이 있을 때까지
-                            FlightTicket f = it.next();
-                            if(f.equals("name")){ //수정할 비행편과 같은 전체 비행편 찾기
-                                String classname = f.getClas(); // 클래스 얻어오기
-                                String newSeat = showSeat(classname, num, f.getSeat()); //좌석현황출력 > 새로운 좌석 입력
-                                printWriter.print(num +" "+ classname+" "+newSeat); //수정된 비행기티켓정보 넣어주기
-                                System.out.println("예약 변경이 완료되었습니다. 감사합니다.");
-                                s = true;
-                                break;
+
+                        //전에 예약한 좌석 정보 저장하기
+                        String[] exSeat = new String[num];
+                        for(int i=0;i<num;i++){
+                            exSeat[i] = flightTicket[i+2];
+                        }
+
+                        //전체 비행편에서 해당 비행편 좌석 수정해주기
+                        Scanner scan2 = new Scanner(new File("FlightReservation-file_data.txt"));
+                        FileWriter fileWriter2 = new FileWriter("newFlightReservation.txt");
+                        PrintWriter printWriter2 = new PrintWriter(fileWriter2);
+                        while(scan2.hasNextLine()){
+
+                            String str2 = scan2.nextLine();
+                            String[] findFlight = str2.split(" ");
+                            printWriter2.println(str2);
+                            if(findFlight[0].equals(fname)){  //같은 비행편을 찾았으면
+                                str2 = scan2.nextLine();
+                                String[] seatNum = str2.split(" ");
+                                for(int i=0;i<seatNum.length;i++){
+                                    for(int j=0;j<exSeat.length;j++){
+                                        if(seatNum[i].equals(exSeat[j]))
+                                            seatNum[i] = "";  //전체 비행편에서 전에 예약한 좌석 삭제해주기
+                                    }
+                                }
+                                //좌석 새로 수정해서 넣어주기
+                                //printWriter1.print();
+                                String[] newSeat = new String[num];
+                                newSeat = showSeat(flightTicket[1], num, seatNum); //클래스 이름과 인원 인자로 넘겨주기
+                                printWriter1.print(flightTicket[0] + " " + flightTicket[1] + " ");
+
+                                for(String a : seatNum){  //삭제한 후 좌석 현황 넣기
+                                    if(!a.equals(""))
+                                        printWriter2.print(a+" ");
+                                }
+                                for(String a : newSeat){  //삭제한 후 좌석 현황 넣기
+                                    printWriter1.print(a+" ");
+                                    printWriter2.print(a+" ");
+                                }
+                                printWriter2.println();
                             }
                         }
+                        printWriter2.close();
+                        printWriter1.println();
                     }else {  //내가 찾는 비행편이 아니라면 그냥 그대로 써주기
-                        printWriter.println(flightTicket_str);
+                        printWriter1.println(flightTicket_str);
                     }
 
                 }
-                printWriter.close();
+                printWriter1.close();
             }catch(FileNotFoundException e) {
                 System.out.println("예약 파일 확인 불가");
             }catch (IOException e) {
@@ -150,131 +156,148 @@ public class MyPageMenu {
             if(!find) { //비행편이 없다면
                 System.out.println("!오류 : 잘못된 입력입니다. 다시 입력해주세요.");
             }
-
-            //홍길동 gild1234
-            //A20 4/10 인천 로스앤젤레스 A항공 직항
-            //2 이코노미 21 22
         }
+        System.out.println("예약 변경이 완료되었습니다. 감사합니다.");
     }
 
-    private String showSeat(String classname, int num, ArrayList<String> seat) {
+    private String[] showSeat(String classname, int num, String[] alreadyseat) {
 
-        String result = "";
+        String[] result = new String[num];
+        String[] canSelectSeat;
+
         String[] first = {"01","02","03","04"};
         String[] business = {"05","06","07","08","09","10","11","12","13","14","15","16"};
         String[] eco = {"17","18","19","20","21","22","23","24","25","26","27","28","29"
                 ,"30","31","32","33","34","35","36","37","38","39"
                 ,"40","41","42","43","44","45","46","47","48","49","50","51","52"};
 
-        ArrayList<String> canSeat = new ArrayList<>();
-        int seatNum;
-        int idx = 0;
-        boolean ex = false;
 
         ///////////////퍼스트 좌석/////////////
         if(classname.equals("퍼스트")){
+            canSelectSeat = new String[first.length];
+            int idx = 0;
             System.out.print("다음 중 선택할 좌석을 입력해주세요. 00으로 표시된 좌석은 이미 예약된 좌석입니다.\n" +
                     "퍼스트 석의 잔여 좌석 번호는 ");
+            boolean all = false;
             for(int i=0;i< first.length;i++){
-                boolean a = true;
-                for(String s : seat){
-                    if(s.equals(first[i])){
-                        a = false;
-                    }
+                boolean seat1 = true; //같은게 없으면 계속 true 유지 -> 좌석 출력
+                for(int j=0;j<alreadyseat.length;j++){
+                    if(first[i].equals(alreadyseat[j]))
+                        seat1 = false; //같은 게 있다면 출력 못하니깐 false
                 }
-                if(a){
+                if(seat1) {
+                    all = true; //좌석을 하나라도 출력했으니
                     System.out.print(first[i]+" ");
-                    canSeat.add(first[i]);
-                    ex= true;
+                    canSelectSeat[idx++] = first[i];
                 }
             }
-            if(ex)System.out.println("없습니다.");
+            if(!all)System.out.println("없습니다.");
             else{System.out.println("입니다.");}
 
-            result = SelectSeat(canSeat, num); //좌석 선택하기
+            result = SelectSeat(canSelectSeat, num); //좌석 선택하기
 
         }
 
         ///////////////비지니스 좌석/////////////
         else if(classname.equals("비지니스")){
+            canSelectSeat = new String[business.length];
+            int idx = 0;
             System.out.print("다음 중 선택할 좌석을 입력해주세요. 00으로 표시된 좌석은 이미 예약된 좌석입니다.\n" +
                     "비지니스 석의 잔여 좌석 번호는 ");
+            boolean all = false;
             for(int i=0;i< business.length;i++){
-                boolean a = true;
-                for(String s : seat){
-                    if(s.equals(business[i])){
-                        a = false;
-                    }
+                boolean seat1 = true; //같은게 없으면 계속 true 유지 -> 좌석 출력
+                for(int j=0;j<alreadyseat.length;j++){
+                    if(business[i].equals(alreadyseat[j]))
+                        seat1 = false; //같은 게 있다면 출력 못하니깐 false
                 }
-                if(a){
+                if(seat1) {
+                    all = true; //좌석을 하나라도 출력했으니
                     System.out.print(business[i]+" ");
-                    canSeat.add(business[i]);
-                    ex= true;
+                    canSelectSeat[idx++] = business[i];
                 }
             }
-            if(ex)System.out.println("없습니다.");
+            if(!all)System.out.println("없습니다.");
             else{System.out.println("입니다.");}
 
-            result = SelectSeat(canSeat, num); //좌석 선택하기
+            result = SelectSeat(canSelectSeat, num); //좌석 선택하기
         }
 
         ///////////////이코노미 좌석/////////////
         else{
+            canSelectSeat = new String[eco.length];
+            int idx = 0;
             System.out.print("다음 중 선택할 좌석을 입력해주세요. 00으로 표시된 좌석은 이미 예약된 좌석입니다.\n" +
                     "이코노미 석의 잔여 좌석 번호는 ");
+            boolean all = false;
             for(int i=0;i< eco.length;i++){
-                boolean a = true;
-                for(String s : seat){
-                    if(s.equals(eco[i])){
-                        a = false;
-                    }
+                boolean seat1 = true; //같은게 없으면 계속 true 유지 -> 좌석 출력
+                for(int j=0;j<alreadyseat.length;j++){
+                    if(eco[i].equals(alreadyseat[j]))
+                        seat1 = false; //같은 게 있다면 출력 못하니깐 false
                 }
-                if(a){
+                if(seat1) {
+                    all = true; //좌석을 하나라도 출력했으니
                     System.out.print(eco[i]+" ");
-                    canSeat.add(eco[i]);
-                    ex= true;
+                    canSelectSeat[idx++] = eco[i];
                 }
             }
-            if(ex)System.out.println("없습니다.");
+            if(!all)System.out.println("없습니다.");
             else{System.out.println("입니다.");}
 
-            result = SelectSeat(canSeat, num); //좌석 선택하기
+            result = SelectSeat(canSelectSeat, num); //좌석 선택하기
         }
 
         return result;
     }
 
     //좌석 선택하기
-    private String SelectSeat(ArrayList<String> seat, int num) {
+    private String[] SelectSeat(String[] seat, int num) {
         //문법 규칙 조건 아직 안 넣음.
-        String[] inputSeatString;
+        String[] result = new String[num];
+        String[] newSeat = new String[num];
+        scan.nextLine();
+        while(true) {
+            try{
+                System.out.print("FlightReservation > ");
+                String inputSeat = scan.nextLine();  //선택할 자리 입력하기
+                String a = inputSeat.replaceAll(" ", "");
+                String[] inputSeatString = a.split("");  //한글자씩 넣어주기.
 
-        System.out.print("FlightReservation > ");
-        try{
-            String inputSeat = scan.nextLine();  //선택할 자리 입력하기
-            inputSeat.replaceAll(" ", "");
-            String[] inputSeatString = new String[num*2];
-            inputSeatString = inputSeat.split("");  //한글자씩 넣어주기.
-            int[] newSeat = new int[num*2];
-            for(int i=0;i<newSeat.length;i++)
-                newSeat[i] = Integer.parseInt(inputSeatString[i]);
-        }catch (NumberFormatException e){
-            System.out.println("!오류 : 좌석 번호는 0또는 자연수로 이루어진 두 개의 숫자여야합니다. 좌석 번호를 다시 입력하세요.");
+                for(String s : inputSeatString){ //숫자 아니라면 예외 발생 //문법규칙부합X
+                    int err = Integer.parseInt(s);
+                }
+
+                if(inputSeatString.length == num*2){  //의미규칙부합X
+
+                    for(int i=0;i<num;i++)
+                        newSeat[i] = inputSeatString[i*2]+inputSeatString[i*2+1];
+
+                    int ll = 0;
+                    int ii = 0;
+                    for(int i=0;i<num;i++){
+                        for(int j=i+1;j<num;j++){  //같은 좌석을 여러 번 입력하는 경우 거르기 위함
+                            if(newSeat[i].equals(newSeat[j])){
+                                ll++;
+                            }}
+                        for(String r : seat){ //해당 class가 아닌 범위의 좌석을 입력하는 경우 거르기 위함
+                            if(r.equals(newSeat[i]))
+                                ii++;
+                        }
+                    }
+                    if(ll==0 && ii==num) return newSeat;
+                    else System.out.println("!오류 : 입력 받은 각각의 좌석 번호는 선택한 클래스의 여석 번호 중 하나여야 하며, " +
+                            "각각의 좌석 번호는 모두 달라야 합니다. 좌석 번호를 다시 입력하세요.");
+                }
+                else{ 
+                    System.out.println("!오류 : 입력 받은 각각의 좌석 번호는 선택한 클래스의 여석 번호 중 하나여야 하며, " +
+                            "각각의 좌석 번호는 모두 달라야 합니다. 좌석 번호를 다시 입력하세요.");
+                }
+            }catch (NumberFormatException e){
+                System.out.println("!오류 : 좌석 번호는 0또는 자연수로 이루어진 두 개의 숫자여야합니다. 좌석 번호를 다시 입력하세요.");
+            }
         }
-
-
-        String result = "";
-
-        int count = 0;
-        for(String a : inputSeatString){
-            count++;
-            result += a;
-            if(count%2==0)
-                result += " ";
-        }
-        return result;
     }
 }
-
 
 
