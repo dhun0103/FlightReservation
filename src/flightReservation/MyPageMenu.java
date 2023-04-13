@@ -68,15 +68,19 @@ public class nnewwMyPageMenu {
 
         boolean s = true;
         boolean find = false;
+        File oldfile = new File(user.getName()+user.getId()+".txt");
         File newfile = new File("new"+user.getName()+user.getId()+".txt");
+
+        File oldFlightRe = new File("FlightReservation-file_data.txt");
+        File newFlightRe = new File("newFlightReservation-file_data.txt");
 
         System.out.println("변경할 비행편의 이름을 입력하세요.");
         while (s) {
             System.out.print("FlightReservation > ");
             String fname = scan.next();  //변경할 비행편 이름
-            String filename = "홍길동1234.txt";  //사용자 비행예약파일 이름
+            //String filename = "홍길동1234.txt";  //사용자 비행예약파일 이름
 
-            try(Scanner scan = new Scanner(new File(filename))){  //파일 내용 읽어오기
+            try(Scanner scan = new Scanner(oldfile)){  //파일 내용 읽어오기
 
                 FileWriter fileWriter1 = new FileWriter(newfile);
                 PrintWriter printWriter1 = new PrintWriter(fileWriter1);
@@ -106,8 +110,8 @@ public class nnewwMyPageMenu {
                         }
 
                         //전체 비행편에서 해당 비행편 좌석 수정해주기
-                        Scanner scan2 = new Scanner(new File("FlightReservation-file_data.txt"));
-                        FileWriter fileWriter2 = new FileWriter("newFlightReservation.txt");
+                        Scanner scan2 = new Scanner(oldFlightRe);
+                        FileWriter fileWriter2 = new FileWriter(newFlightRe);
                         PrintWriter printWriter2 = new PrintWriter(fileWriter2);
                         while(scan2.hasNextLine()){
 
@@ -141,6 +145,7 @@ public class nnewwMyPageMenu {
                             }
                         }
                         printWriter2.close();
+                        scan2.close();
                         printWriter1.println();
                     }else {  //내가 찾는 비행편이 아니라면 그냥 그대로 써주기
                         printWriter1.println(flightTicket_str);
@@ -157,7 +162,12 @@ public class nnewwMyPageMenu {
                 System.out.println("!오류 : 잘못된 입력입니다. 다시 입력해주세요.");
             }
         }
-        System.out.println("예약 변경이 완료되었습니다. 감사합니다.");
+        boolean del1 = oldfile.delete();
+        boolean rename1 = newfile.renameTo(oldfile);
+        boolean del2 = oldFlightRe.delete();
+        boolean rename2 = newFlightRe.renameTo(oldFlightRe);
+        //if(del1)
+            System.out.println("예약 변경이 완료되었습니다. 감사합니다.");
     }
 
     private String[] showSeat(String classname, int num, String[] alreadyseat) {
@@ -281,6 +291,8 @@ public class nnewwMyPageMenu {
                                 ll++;
                             }}
                         for(String r : seat){ //해당 class가 아닌 범위의 좌석을 입력하는 경우 거르기 위함
+                            if(r==null)
+                                r = " ";
                             if(r.equals(newSeat[i]))
                                 ii++;
                         }
@@ -289,7 +301,7 @@ public class nnewwMyPageMenu {
                     else System.out.println("!오류 : 입력 받은 각각의 좌석 번호는 선택한 클래스의 여석 번호 중 하나여야 하며, " +
                             "각각의 좌석 번호는 모두 달라야 합니다. 좌석 번호를 다시 입력하세요.");
                 }
-                else{ 
+                else{
                     System.out.println("!오류 : 입력 받은 각각의 좌석 번호는 선택한 클래스의 여석 번호 중 하나여야 하며, " +
                             "각각의 좌석 번호는 모두 달라야 합니다. 좌석 번호를 다시 입력하세요.");
                 }
@@ -299,5 +311,4 @@ public class nnewwMyPageMenu {
         }
     }
 }
-
 
