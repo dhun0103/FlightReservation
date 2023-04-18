@@ -267,16 +267,33 @@ public class MainMenu {
 
             if (input.equals("퍼스트") || input.equals("퍼스트클래스") || input.equals("퍼스트 클래스")) {
                 res = "퍼스트";
-                return res;
             } else if (input.equals("비즈니스") || input.equals("비즈니스클래스") || input.equals("비즈니스 클래스")) {
                 res = "비즈니스";
-                return res;
             } else if (input.equals("이코노미") || input.equals("이코노미클래스") || input.equals("이코노미 클래스")) {
                 res = "이코노미";
-                return res;
             } else {
                 System.out.println("!오류 : 잘못된입력입니다. 퍼스트 비즈니스 이코노미 중 하나로 다시 입력해주세요.");
+                continue;
             }
+
+            // 클래스 남은 좌석수가 0이면
+            int left_seat = 0;
+            if(res.equals("퍼스트")){
+                for (int i = 1; i <= 4; i++) {
+                    if (flightTicket.getSeat()[i].equals("1")) left_seat++;
+                }
+            }else if(res.equals("비즈니스")){
+                for (int i = 5; i <= 16; i++) {
+                    if (flightTicket.getSeat()[i].equals("1")) left_seat++;
+                }
+            }else{
+                for (int i = 17; i <= 52; i++) {
+                    if (flightTicket.getSeat()[i].equals("1")) left_seat++;
+                }
+            }
+            if(left_seat==0) continue;
+
+            return res;
         }
     }
 
@@ -284,7 +301,7 @@ public class MainMenu {
         int res;
         int left_seat = 0;
         for (int i = 1; i <= 52; i++) {
-            if (flightTicket.getSeat()[i].equals(1)) left_seat++;
+            if (flightTicket.getSeat()[i].equals("1")) left_seat++;
         }
         int filled_seat = 52 - left_seat;
 
@@ -339,25 +356,25 @@ public class MainMenu {
                     }
                 }
             }
-            System.out.println("다음 중 선택할 좌석을 입력해주세요. 99로 표시된 좌석은 이미 예약된 좌석입니다.");
+            System.out.println("다음 중 선택할 좌석을 입력해주세요. 00으로 표시된 좌석은 이미 예약된 좌석입니다.");
             System.out.print(flightTicket.getClas() + " 석의  잔여 좌석 번호는 ");
             if (flightTicket.getClas().equals("퍼스트")) {
                 for (int i = 1; i < 5; i++) {
-                    if (!flightTicket.getSeat()[i].equals("99")) System.out.print("0" + Integer.toString(i) + ", ");
+                    if (!flightTicket.getSeat()[i].equals("00")) System.out.print("0" + Integer.toString(i) + ", ");
                 }
             } else if (flightTicket.getClas().equals("비즈니스")) {
                 for (int i = 5; i < 17; i++) {
-                    if (!flightTicket.getSeat()[i].equals("99")) {
+                    if (!flightTicket.getSeat()[i].equals("00")) {
                         if (i < 10) System.out.print("0" + Integer.toString(i) + ", ");
                         else System.out.print(i + ", ");
                     }
                 }
             } else {
                 for (int i = 17; i <= 52; i++) {
-                    if (!flightTicket.getSeat()[i].equals("99")) System.out.print(i + ", ");
+                    if (!flightTicket.getSeat()[i].equals("00")) System.out.print(i + ", ");
                 }
             }
-            System.out.println("입니다.");
+            System.out.println(" 입니다.");
             System.out.print("FlightReservation> ");
             String input = sc.next();
 
@@ -401,7 +418,7 @@ public class MainMenu {
                 if (input.substring(i, i + 1).equals('0')) key = input.substring(i + 1, i + 2);
                 else key = input.substring(i, i + 2);
 
-                flightTicket.getSeat()[Integer.parseInt(key)] = "99";
+                flightTicket.getSeat()[Integer.parseInt(key)] = "00";
                 i += 2;
             }
             System.out.println("해당 비행편 예약이 완료되었습니다. 감사합니다.");
