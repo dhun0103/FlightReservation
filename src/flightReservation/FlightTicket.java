@@ -1,22 +1,23 @@
 package flightReservation;
 
-import java.util.ArrayList;
 import java.util.Arrays;
 
 public class FlightTicket {
     private Flight flight;
     private String clas;
     private int num;
-    private String[] seat = new String[53];
+    private String[] seat;
 
     FlightTicket() {
+        this.seat = new String[53];
+        Arrays.fill(seat, "1");
     }
 
-    FlightTicket(Flight flight, String clas, int num, String[] seat) {
+    FlightTicket(Flight flight, String clas, int num) {
         this.flight = flight;
         this.clas = clas;
         this.num = num;
-        this.seat = seat;
+        this.seat = new String[53];
         Arrays.fill(seat, "1");
     }
 
@@ -45,7 +46,8 @@ public class FlightTicket {
     }
 
     public void setSeat(String[] seat) {
-        this.seat = seat;
+        this.seat = new String[53];
+        Arrays.fill(seat, "1");
     }
 
     public String[] getSeat() {
