@@ -1,12 +1,12 @@
 import java.io.*;
 import java.util.Scanner;
 
-public class nnewwMyPageMenu {
+public class MyPageMenu {
 
     User user;
     static Scanner scan = new Scanner(System.in);
 
-    public nnewwMyPageMenu(User user) {	//메인에서 로그인한 후에 그 회원에 해당하는 user객체를 생성해서 여러 클래스에서 공유해서 이용하도록 해야할 듯?
+    public MyPageMenu(User user) {	//메인에서 로그인한 후에 그 회원에 해당하는 user객체를 생성해서 여러 클래스에서 공유해서 이용하도록 해야할 듯?
         //생성자에서 인자로 user를 받아서 MypageMenu 클래스 내부 user 변수에 넣어주고 이용하거나 아니면 mainmenu에서 showmypage바로 호출?
         super();
         this.user = user;
@@ -180,6 +180,68 @@ public class nnewwMyPageMenu {
         String[] eco = {"17","18","19","20","21","22","23","24","25","26","27","28","29"
                 ,"30","31","32","33","34","35","36","37","38","39"
                 ,"40","41","42","43","44","45","46","47","48","49","50","51","52"};
+
+        ///////좌석 출력하기
+        boolean h = true;
+        int hnum = 0;
+        for(int i=0;i< first.length;i++){
+            for(int j=0; j< alreadyseat.length; j++){
+                if(first[i].equals(alreadyseat[j]))
+                    h = false;
+            }
+            if(h==true){
+                System.out.print(first[i]+"            ");
+            }
+            else
+                System.out.print("00            ");
+            hnum++;
+            h = true;
+            if(hnum%2==0)
+                System.out.println();
+        }
+        System.out.println();
+
+        hnum = 0;
+        for(int i=0;i< business.length;i++){
+            for(int j=0; j< alreadyseat.length; j++){
+                if(business[i].equals(alreadyseat[j]))
+                    h = false;
+            }
+            if(h==true){
+                System.out.print(business[i]+"     ");
+            }
+            else
+                System.out.print("00   ");
+            hnum++;
+            h = true;
+            if(hnum%3==0)
+                System.out.println();
+        }
+        System.out.println();
+
+        hnum = 0;
+        int hSunNum = 0;
+        for(int i=0;i< eco.length;i++){
+            for(int j=0; j< alreadyseat.length; j++){
+                if(eco[i].equals(alreadyseat[j]))
+                    h = false;
+            }
+            if(h==true){
+                System.out.print(eco[i]+"");
+            }
+            else
+                System.out.print("00");
+            hnum++;
+            h = true;
+            if(hnum%2==0)
+                System.out.print(" ");
+            else
+                System.out.print("|");
+            if(hnum%6==0)
+                System.out.println();
+        }
+        System.out.println();
+
 
 
         ///////////////퍼스트 좌석/////////////
