@@ -263,7 +263,7 @@ public class nnewwMyPageMenu {
 
     //좌석 선택하기
     private String[] SelectSeat(String[] seat, int num) {
-        //문법 규칙 조건 아직 안 넣음.
+
         String[] result = new String[num];
         String[] newSeat = new String[num];
         scan.nextLine();
