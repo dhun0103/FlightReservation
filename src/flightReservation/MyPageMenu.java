@@ -1,52 +1,79 @@
-import java.io.*;
+import java.io.BufferedReader;
+import java.io.File;
+import java.io.FileNotFoundException;
+import java.io.FileReader;
+import java.io.FileWriter;
+import java.io.IOException;
+import java.io.PrintWriter;
 import java.util.Scanner;
 
 public class MyPageMenu {
 
     User user;
-    static Scanner scan = new Scanner(System.in);
 
-    public MyPageMenu(User user) {	//메인에서 로그인한 후에 그 회원에 해당하는 user객체를 생성해서 여러 클래스에서 공유해서 이용하도록 해야할 듯?
-        //생성자에서 인자로 user를 받아서 MypageMenu 클래스 내부 user 변수에 넣어주고 이용하거나 아니면 mainmenu에서 showmypage바로 호출?
-        super();
+    static Scanner scan = new Scanner(System.in);
+    String flightfile = "FlightReservation-file_data.txt";	//비행편 파일 이름
+    String userfile;	//사용자 파일 이름
+
+    public MyPageMenu(User user) {
         this.user = user;
+        userfile = user.getId()+".txt";	//마이페이지 객체 생성할 때 user의 id를 이용해 userfile에 사용자 파일 이름을 저장해 둠
         showMyPage();
-        // TODO Auto-generated constructor stub
     }
 
     void showMyPage(){
-
         int choice = 0;
-        if(user.getFlightTicketList().size()!=0) {
-            System.out.println(user.getName()+"회원님 예약 내역이 없습니다.");
-            System.out.println("메인 메뉴로 돌아가려면 아무 키나 누르세요.");
-            System.out.println("FlightReservation >");
-            scan.next();
 
-        }else {
-            System.out.println(user.getName()+"회원의 예약 내역입니다.");
-            for(FlightTicket ft : user.getFlightTicketList())
-                System.out.println(ft+"\n");
-            System.out.println("원하는 메뉴를 선택하세요.\n");
-            System.out.println("1.예약취소\n2.예약변경\n3.뒤로가기");
+        while(choice != 3) {	//사용자가 3.뒤로가기를 누르거나 예약 내역이 없는 경우가 아니면 마이페이지를 반복해서 출력
 
-            while(choice == 0){
-                System.out.print("FlightReservation > ");
-                String input = scan.nextLine();
+            String dummy = "";
 
-                String result = input.replaceAll(" ", "");
-                choice = find(result);
+            try(Scanner scan = new Scanner(new File(userfile))){
+                scan.nextLine();	//이름 비번 읽기
+                while(scan.hasNextLine()) {		//예약 정보 전부 읽어서 dummy에 저장
+                    String str = scan.nextLine();
+                    dummy += str +"\n";
+                }
+            }catch(FileNotFoundException e) {
+                e.printStackTrace();
             }
-            //입력을 받아서 어떤 메뉴인지 판단하는 코드..(choice를 int 값으로 설정)
 
-            switch(choice) {
-                case 1:delete();break;
-                case 2:change();break;
-                case 3:break;
-                default :break;
+            if (dummy.isBlank()) {	//dummy가 비어있는 경우(예약 정보가 없음)
+                choice = 3;
+                System.out.println("\n"+user.getName() + "회원님 예약 내역이 없습니다.");
+                System.out.println("메인 메뉴로 돌아가려면 아무 키나 누르세요.");
+                System.out.print("FlightReservation >");
+                scan.next();
+            } else {
+                choice = 0 ;
+                System.out.println("\n"+user.getName() + "회원의 예약 내역입니다.\n");
+                System.out.println(dummy+"\n");
+                System.out.println("원하는 메뉴를 선택하세요.\n");
+                System.out.println("1.예약취소\n2.예약변경\n3.뒤로가기");
+
+                while (choice == 0) {
+                    System.out.print("FlightReservation >");
+                    String input = scan.nextLine();
+
+                    String result = input.replaceAll(" ", "");
+                    choice = find(result);	//그냥 find(result)만 썼었음
+
+                    switch (choice) {
+                        case 1:
+                            delete();
+                            break;
+                        case 2:
+                            change();
+                            break;
+                        case 3:
+                            break;
+                        default:
+                            System.out.println("!오류 : 잘못된 입력입니다. 다시 입력해주세요.");
+                            break;
+                    }
+                }
             }
         }
-
     }
 
     public int find(String result){
@@ -60,16 +87,148 @@ public class MyPageMenu {
         else
             return 0;
     }
+
     public void delete() {
-        // TODO Auto-generated method stub
+
+        System.out.println("[예약 취소]");
+        System.out.println();
+        System.out.println("취소할 비행편의 이름을 입력하세요.");
+
+        boolean exist = false;	//사용자가 입력한 비행편 이름이 user파일에 존재하는지 여부
+        while(!exist) {
+            System.out.print("FlightReservation >");
+            String input = scan.nextLine();
+            input = input.replaceAll(" ", "");
+
+            String dummy = "";
+
+            //취소할 의 티켓의 정보를 저장할 변수들
+            String fname = null;
+            String date = null;
+            int num = 0;
+            String[] seats = null;
+            //
+
+            try(Scanner s = new Scanner(new File(userfile))){
+                dummy += s.nextLine()+"\r\n";	//이름 비번 읽어서 dummy에 저장
+
+                while(s.hasNextLine()) {
+                    String flight_str = s.nextLine();
+                    String[] flight = flight_str.split(" ");
+                    String flightTicket_str;
+
+                    if(input.equals(flight[0])) {
+                        exist = true;
+                        fname = flight[0];
+                        flightTicket_str = s.nextLine();
+                        String[] flightTicket = flightTicket_str.split(" ");
+                        num = Integer.parseInt(flightTicket[0]);
+                        seats = new String[num];
+                        int j=0;
+                        for(int i=2;i<2+num;i++) {
+                            seats[j]=flightTicket[i];
+                            j++;
+                        }
+                        date = flight[1];
+
+                        System.out.println(flight[0]+" 비행편 예약을 정말로 취소하시겠습니까?(예/아니오)");
+                        while(true) {
+                            System.out.print("FlightReservation >");
+                            String ans = scan.nextLine();
+                            ans = ans.trim();
+                            if(ans.equals("예")){
+                                break;
+                            }else if(ans.equals("아니오")) {
+                                return;
+                            }else {
+                                System.out.println(("!오류 : 예 또는 아니오로 입력해주세요."));
+                            }
+                        }
+                    }else {
+                        flightTicket_str = s.nextLine();
+                        dummy += flight_str+"\r\n";
+                        dummy += flightTicket_str+"\r\n";
+                    }
+                }
+            }catch(FileNotFoundException e) {
+                e.printStackTrace();
+            }
+
+            if(exist) {
+                //user파일 새로쓰기
+                try {
+                    FileWriter fw = new FileWriter(userfile);
+                    fw.write(dummy);
+                    fw.close();
+                    System.out.println("사용자 파일 수정완료");
+                }catch (IOException e) {
+                    e.printStackTrace();
+                }
+
+                //비행편 파일 수정
+                try {
+                    BufferedReader br = new BufferedReader(new FileReader(flightfile));
+                    String line = null;
+                    String dummy2 = "";
+
+                    while((line = br.readLine()) != null) {    //파일 끝까지 한 줄씩 읽기
+                        if (line.equals(date)) {    //취소할 비행편의 날짜인지 비교
+                            dummy2 += (line + "\r\n");    //날짜를 dummy에 추가
+                            while(!((line=br.readLine())==null || line.equals(""))) {    //해당 날짜의 비행편들을 읽기
+                                String[] info = line.split(" ");
+                                if(info[0].equals(fname)){    //해당하는 비행편의 id 찾기
+                                    String seatstr = br.readLine();
+                                    String[] seat = seatstr.split(" ");
+                                    int j=0;
+                                    for(int i=0;i<seat.length;i++){
+                                        if(j<num && seat[i].equals(seats[j])){
+                                            seat[i]=null;
+                                            j++;
+                                        }
+                                    }
+                                    seatstr = "";
+                                    for(int i=0;i<seat.length;i++){
+                                        if(seat[i]!=null)
+                                            seatstr += seat[i]+" ";
+                                    }
+                                    dummy2 += (line + "\r\n");    //비행편 정보 dummy에 추가
+                                    dummy2 += (seatstr + "\r\n");    //예약된 좌석 번호들 dummy에 추가
+                                }else {    //해당하는 비행편이 아닌 경우 수정하지 않고 dummy에 추가
+                                    dummy2 += (line + "\r\n");
+                                    line = br.readLine();
+                                    dummy2 += (line + "\r\n");
+                                }
+                            }
+                            dummy2 += "\r\n";
+                        }else {    //해당 날짜가 아닌 줄들은 수정하지 않고 dummy에 추가
+                            dummy2 += (line + "\r\n");
+                        }
+                    }
+                    FileWriter fw = new FileWriter(flightfile);
+                    fw.write(dummy2);
+                    br.close();
+                    fw.close();
+                    System.out.println("비행편 파일 수정완료");
+
+                } catch (FileNotFoundException e) {
+                    e.printStackTrace();
+                } catch (IOException e) {
+                    e.printStackTrace();
+                }
+
+            }else {
+                System.out.println("!오류 : 잘못된 입력입니다. 다시 입력해주세요.");
+            }
+        }
     }
+
     public void change() {
         // TODO Auto-generated method stub
 
         boolean s = true;
         boolean find = false;
-        File oldfile = new File(user.getName()+user.getId()+".txt");
-        File newfile = new File("new"+user.getName()+user.getId()+".txt");
+        File oldfile = new File(userfile);
+        File newfile = new File("new"+userfile);
 
         File oldFlightRe = new File("FlightReservation-file_data.txt");
         File newFlightRe = new File("newFlightReservation-file_data.txt");
@@ -167,7 +326,7 @@ public class MyPageMenu {
         boolean del2 = oldFlightRe.delete();
         boolean rename2 = newFlightRe.renameTo(oldFlightRe);
         //if(del1)
-            System.out.println("예약 변경이 완료되었습니다. 감사합니다.");
+        System.out.println("예약 변경이 완료되었습니다. 감사합니다.");
     }
 
     private String[] showSeat(String classname, int num, String[] alreadyseat) {
@@ -180,6 +339,7 @@ public class MyPageMenu {
         String[] eco = {"17","18","19","20","21","22","23","24","25","26","27","28","29"
                 ,"30","31","32","33","34","35","36","37","38","39"
                 ,"40","41","42","43","44","45","46","47","48","49","50","51","52"};
+
 
         ///////좌석 출력하기
         boolean h = true;
@@ -241,8 +401,6 @@ public class MyPageMenu {
                 System.out.println();
         }
         System.out.println();
-
-
 
         ///////////////퍼스트 좌석/////////////
         if(classname.equals("퍼스트")){
@@ -325,7 +483,7 @@ public class MyPageMenu {
 
     //좌석 선택하기
     private String[] SelectSeat(String[] seat, int num) {
-
+        //문법 규칙 조건 아직 안 넣음.
         String[] result = new String[num];
         String[] newSeat = new String[num];
         scan.nextLine();
@@ -373,4 +531,3 @@ public class MyPageMenu {
         }
     }
 }
-
