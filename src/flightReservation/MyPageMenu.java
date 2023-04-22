@@ -1,12 +1,12 @@
 import java.io.*;
 import java.util.Scanner;
 
-public class nnewwMyPageMenu {
+public class MyPageMenu {
 
     User user;
     static Scanner scan = new Scanner(System.in);
 
-    public nnewwMyPageMenu(User user) {	//메인에서 로그인한 후에 그 회원에 해당하는 user객체를 생성해서 여러 클래스에서 공유해서 이용하도록 해야할 듯?
+    public MyPageMenu(User user) {	//메인에서 로그인한 후에 그 회원에 해당하는 user객체를 생성해서 여러 클래스에서 공유해서 이용하도록 해야할 듯?
         //생성자에서 인자로 user를 받아서 MypageMenu 클래스 내부 user 변수에 넣어주고 이용하거나 아니면 mainmenu에서 showmypage바로 호출?
         super();
         this.user = user;
@@ -308,7 +308,6 @@ public class nnewwMyPageMenu {
             }catch (NumberFormatException e){
                 System.out.println("!오류 : 좌석 번호는 0또는 자연수로 이루어진 두 개의 숫자여야합니다. 좌석 번호를 다시 입력하세요.");
             }
-        }
-    }
+        }s
 }
 
