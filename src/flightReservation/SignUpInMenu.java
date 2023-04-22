@@ -12,7 +12,13 @@ import java.io.BufferedReader;
 public class SignUpInMenu {
   Scanner scan = new Scanner(System.in);
 
-   
+   void start() {
+	   SignUpInMenu menu1 = new SignUpInMenu();
+	   System.out.println("비행기 예약 프로그램에 오신 것을 환영합니다!");
+	   menu1.screen();
+	   menu1.menuinput();
+   }
+  
    void screen() {
       System.out.println("[회원가입 및 로그인]");
       System.out.println("1.SignUp");
