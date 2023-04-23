@@ -189,7 +189,6 @@ public class SignUpInMenu {
 			}
 			System.out.println("로그인 완료!\n");
 			
-			Flight flight = new Flight();
 			User user = new User(id,pw,name,flightTicketList);
 			MainMenu mainmenu = new MainMenu(user);
 			
