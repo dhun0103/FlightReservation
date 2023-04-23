@@ -188,6 +188,7 @@ public class SignUpInMenu {
 			
 			User user = new User(id,pw,name,flightTicketList);
 			MainMenu mainmenu = new MainMenu(user);
+			mainmenu.showMenu();
 			
 		}catch(Exception e) {
 			e.printStackTrace();
