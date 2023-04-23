@@ -123,9 +123,6 @@ public class SignUpInMenu {
 			}
 			
 			System.out.println("회원가입이 완료되었습니다.");
-			System.out.println(name);
-			System.out.println(id);
-			System.out.println(pw);
 			filewrite(name,id,pw);
 			
 			screen();
