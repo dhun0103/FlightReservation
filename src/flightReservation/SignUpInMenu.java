@@ -14,10 +14,9 @@ public class SignUpInMenu {
   Scanner scan = new Scanner(System.in);
 
    void start() {
-	   SignUpInMenu menu1 = new SignUpInMenu();
 	   System.out.println("비행기 예약 프로그램에 오신 것을 환영합니다!");
-	   menu1.screen();
-	   menu1.menuinput();
+	   screen();
+	   menuinput();
    }
   
    void screen() {
