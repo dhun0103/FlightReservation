@@ -489,12 +489,12 @@ public class MainMenu {
             		if (line.equals(flightTicket.getFlight().getDate())) {//일치하는 날짜 발견
             			while(true) {
             				line = bfr.readLine();//비행편
-            				if (line.equals("") || line==null) break;
+            				if (line==null || line.equals("")) break;
             				fr.append(line+"\n");
                 			if (line.substring(0,3).equals(flightTicket.getFlight().getId())) {//해당 비행편 발견
                 				line = bfr.readLine();//예약된 좌석이 쓰여있는 줄
                 				for (String sn : seatToReserve) {
-                					line = line += " " + sn;
+                					line = line + sn + " ";
                 				}
                 				fr.append(line+"\n");
                 			} else {//해당날짜 다른 비행편
