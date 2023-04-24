@@ -1,3 +1,5 @@
+package flightReservation;
+
 import java.io.BufferedReader;
 import java.io.File;
 import java.io.FileNotFoundException;
@@ -12,7 +14,7 @@ public class MyPageMenu {
     User user;
 
     static Scanner scan = new Scanner(System.in);
-    String flightfile = "./src/FlightReservation-file_data.txt";	//비행편 파일 이름
+    String flightfile = "FlightReservation-file_data.txt";	//비행편 파일 이름
     String userfile;	//사용자 파일 이름
 
     public MyPageMenu(User user) {
