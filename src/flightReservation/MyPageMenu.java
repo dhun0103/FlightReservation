@@ -1,5 +1,3 @@
-package flightReservation;
-
 import java.io.BufferedReader;
 import java.io.File;
 import java.io.FileNotFoundException;
@@ -113,7 +111,7 @@ public class MyPageMenu {
         while(!exist) {
             System.out.print("FlightReservation >");
             String input = scan.nextLine();
-            input = input.replaceAll(" ", "");
+            input = input.trim();
 
             String dummy = "";
 
@@ -252,14 +250,7 @@ public class MyPageMenu {
         while (s) {
             System.out.print("FlightReservation > ");
             String fname = scan.nextLine();  //변경할 비행편 이름
-            fname.replaceAll(" ", "");
-
-            char[] fname2 = fname.toCharArray();
-            if(fname2[0]>=97 && fname2[0] <= 122){ //소문자인경우
-                fname2[0] -= 32;
-                String change =  new String(fname2);
-                fname = change;
-            }
+            fname.trim();
 
             try(Scanner scan1 = new Scanner(oldfile)){  //파일 내용 읽어오기
 
@@ -337,6 +328,7 @@ public class MyPageMenu {
                 }
                 fileWriter1.close();
                 printWriter1.close();
+                scan1.close();
             }catch(FileNotFoundException e) {
                 System.out.println("예약 파일 확인 불가");
             }catch (IOException e) {
@@ -351,6 +343,10 @@ public class MyPageMenu {
         boolean del2 = oldFlightRe.delete();
         boolean rename2 = newFlightRe.renameTo(oldFlightRe);
 
+        System.out.println(del1);
+        System.out.println(rename1);
+        System.out.println(del2);
+        System.out.println(rename2);
         System.out.println("예약 변경이 완료되었습니다. 감사합니다.");
 
 
