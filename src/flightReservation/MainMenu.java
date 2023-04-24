@@ -79,7 +79,7 @@ public class MainMenu {
 
     public void printFlights(Flight flight) {
         try {
-            BufferedReader ffbr = new BufferedReader(new InputStreamReader(new FileInputStream("FlightReservation-file_data.txt"), "UTF-8"));
+            BufferedReader ffbr = new BufferedReader(new InputStreamReader(new FileInputStream("./src/FlightReservation-file_data.txt"), "UTF-8"));
             String line;
             while ((line = ffbr.readLine()) != null) {
                 if (line.equals(flight.getDate())) {//입력한 날짜와 일치하는 줄을 만나면
@@ -198,7 +198,7 @@ public class MainMenu {
     public boolean isDeptDestExisted(boolean isDept, String name, Flight flight) {
         boolean isFound = false;
         try {
-            BufferedReader ffbr = new BufferedReader(new InputStreamReader(new FileInputStream("FlightReservation-file_data.txt"), "UTF-8"));
+            BufferedReader ffbr = new BufferedReader(new InputStreamReader(new FileInputStream("./src/FlightReservation-file_data.txt"), "UTF-8"));
 
             String line;
             while ((line = ffbr.readLine()) != null) {
@@ -271,7 +271,7 @@ public class MainMenu {
     	
     	BufferedReader ffbr;
 		try {
-			ffbr = new BufferedReader(new InputStreamReader(new FileInputStream("FlightReservation-file_data.txt"), "UTF-8"));
+			ffbr = new BufferedReader(new InputStreamReader(new FileInputStream("./src/FlightReservation-file_data.txt"), "UTF-8"));
 			String line;
 			while ((line = ffbr.readLine()) != null) {
 				if (line.equals("") || line.length() < 3) continue;
@@ -480,7 +480,7 @@ public class MainMenu {
             //파일에 작성
             //FlightReservation-file_data 파일에 작성
             try {
-            	BufferedReader bfr = new BufferedReader(new InputStreamReader(new FileInputStream("FlightReservation-file_data.txt"), "UTF-8"));
+            	BufferedReader bfr = new BufferedReader(new InputStreamReader(new FileInputStream("./src/FlightReservation-file_data.txt"), "UTF-8"));
             	StringBuilder fr = new StringBuilder();
             	
             	String line;
@@ -505,7 +505,7 @@ public class MainMenu {
             	}
             	bfr.close();
             	//진짜 작성
-            	BufferedWriter bfw = new BufferedWriter(new OutputStreamWriter(new FileOutputStream("FlightReservation-file_data.txt"),"UTF-8"));
+            	BufferedWriter bfw = new BufferedWriter(new OutputStreamWriter(new FileOutputStream("./src/FlightReservation-file_data.txt"),"UTF-8"));
             	bfw.write(fr.toString());
             	bfw.flush();
             	bfw.close();
