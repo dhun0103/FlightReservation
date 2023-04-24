@@ -252,6 +252,7 @@ public class MainMenu {
             System.out.println("비행편을 입력해주세요.");
             System.out.print("FlightReservation> ");
             String input = sc.next();
+            input = input.trim();
 
             // 비행편 동치 확인
             for (Flight fl : list) {
