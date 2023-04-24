@@ -1,5 +1,3 @@
-package flightReservation;
-
 import java.io.BufferedReader;
 import java.io.File;
 import java.io.FileNotFoundException;
@@ -34,7 +32,20 @@ public class MyPageMenu {
                 scan.nextLine();	//이름 비번 읽기
                 while(scan.hasNextLine()) {		//예약 정보 전부 읽어서 dummy에 저장
                     String str = scan.nextLine();
+                    String[] tmp = str.split(" ");
+                    str = tmp[0]+" : "+tmp[2]+">"+tmp[3]+" / ";
+                    tmp[1]=tmp[1].replaceAll("/", "월 ");
+                    tmp[1]+="일";
+                    str +=tmp[1]+" / "+tmp[4]+" / "+tmp[5];
                     dummy += str +"\n";
+                    String str2 = scan.nextLine();
+                    String[] tmp2 = str2.split(" ");
+                    int num = Integer.parseInt(tmp2[0]);
+                    str2 = "인원 : "+tmp2[0]+"명 / 좌석 : ";
+                    for(int i=2;i<num+2;i++) {
+                        str2 += tmp2[i]+" ";
+                    }
+                    dummy += str2 +"\n";
                 }
             }catch(FileNotFoundException e) {
                 e.printStackTrace();
@@ -45,11 +56,11 @@ public class MyPageMenu {
                 System.out.println("\n"+user.getName() + "회원님 예약 내역이 없습니다.");
                 System.out.println("메인 메뉴로 돌아가려면 아무 키나 누르세요.");
                 System.out.print("FlightReservation >");
-                scan.next();
+                scan.nextLine();
             } else {
                 choice = 0 ;
                 System.out.println("\n"+user.getName() + "회원의 예약 내역입니다.\n");
-                System.out.println(dummy+"\n");
+                System.out.println(dummy);
                 System.out.println("원하는 메뉴를 선택하세요.\n");
                 System.out.println("1.예약취소\n2.예약변경\n3.뒤로가기");
 
@@ -238,24 +249,31 @@ public class MyPageMenu {
         System.out.println("변경할 비행편의 이름을 입력하세요.");
         while (s) {
             System.out.print("FlightReservation > ");
-            String fname = scan.next();  //변경할 비행편 이름
-            //String filename = "홍길동1234.txt";  //사용자 비행예약파일 이름
+            String fname = scan.nextLine();  //변경할 비행편 이름
+            fname.replaceAll(" ", "");
 
-            try(Scanner scan = new Scanner(oldfile)){  //파일 내용 읽어오기
+            char[] fname2 = fname.toCharArray();
+            if(fname2[0]>=97 && fname2[0] <= 122){ //소문자인경우
+                fname2[0] -= 32;
+                String change =  new String(fname2);
+                fname = change;
+            }
+
+            try(Scanner scan1 = new Scanner(oldfile)){  //파일 내용 읽어오기
 
                 FileWriter fileWriter1 = new FileWriter(newfile);
                 PrintWriter printWriter1 = new PrintWriter(fileWriter1);
 
-                String str = scan.nextLine(); //이름 아이디 읽기.
+                String str = scan1.nextLine(); //이름 비번 읽기.
                 printWriter1.println(str); // 새 파일에 str 내용 붙여넣기
 
-                while(scan.hasNextLine()) {
+                while(scan1.hasNextLine()) {
 
-                    String flight_str = scan.nextLine(); //비행편 정보 line scan
+                    String flight_str = scan1.nextLine(); //비행편 정보 line scan
                     printWriter1.println(flight_str);  //그대로 새 파일에 붙여넣기
                     String[] flight = flight_str.split(" "); //비행편 이름 골라내기 위해서
 
-                    String flightTicket_str = scan.nextLine(); //비행기 티켓 정보 line
+                    String flightTicket_str = scan1.nextLine(); //비행기 티켓 정보 line
                     String[] flightTicket = flightTicket_str.split(" "); //인원, 클래스, 좌석번호 구분하기
 
                     if(flight[0].equals(fname)) { //비행편 이름이 같다면; flight[0]에 비행편 이름 저장되어있음;
@@ -279,7 +297,8 @@ public class MyPageMenu {
                             String str2 = scan2.nextLine();
                             String[] findFlight = str2.split(" ");
                             printWriter2.println(str2);
-                            if(findFlight[0].equals(fname)){  //같은 비행편을 찾았으면
+
+                            if(findFlight[0].equals(fname) ){  //같은 비행편을 찾았으면
                                 str2 = scan2.nextLine();
                                 String[] seatNum = str2.split(" ");
                                 for(int i=0;i<seatNum.length;i++){
@@ -289,7 +308,6 @@ public class MyPageMenu {
                                     }
                                 }
                                 //좌석 새로 수정해서 넣어주기
-                                //printWriter1.print();
                                 String[] newSeat = new String[num];
                                 newSeat = showSeat(flightTicket[1], num, seatNum); //클래스 이름과 인원 인자로 넘겨주기
                                 printWriter1.print(flightTicket[0] + " " + flightTicket[1] + " ");
@@ -303,8 +321,10 @@ public class MyPageMenu {
                                     printWriter2.print(a+" ");
                                 }
                                 printWriter2.println();
+
                             }
                         }
+                        fileWriter2.close();
                         printWriter2.close();
                         scan2.close();
                         printWriter1.println();
@@ -313,6 +333,7 @@ public class MyPageMenu {
                     }
 
                 }
+                fileWriter1.close();
                 printWriter1.close();
             }catch(FileNotFoundException e) {
                 System.out.println("예약 파일 확인 불가");
@@ -327,8 +348,10 @@ public class MyPageMenu {
         boolean rename1 = newfile.renameTo(oldfile);
         boolean del2 = oldFlightRe.delete();
         boolean rename2 = newFlightRe.renameTo(oldFlightRe);
-        //if(del1)
+
         System.out.println("예약 변경이 완료되었습니다. 감사합니다.");
+
+
     }
 
     private String[] showSeat(String classname, int num, String[] alreadyseat) {
@@ -488,7 +511,7 @@ public class MyPageMenu {
         //문법 규칙 조건 아직 안 넣음.
         String[] result = new String[num];
         String[] newSeat = new String[num];
-        scan.nextLine();
+        //scan.nextLine();
         while(true) {
             try{
                 System.out.print("FlightReservation > ");
