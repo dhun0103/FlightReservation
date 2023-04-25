@@ -30,6 +30,7 @@ public class SignUpInMenu {
         System.out.println("1.SignUp");
         System.out.println("2.SignIn");
         System.out.println("3.Exit");
+        System.out.print("FlightReservation> ");
     }
 
     void menuinput() {

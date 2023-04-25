@@ -296,7 +296,7 @@ public class MainMenu {
                 if (line.equals("") || line.length() < 3) continue;
                 if (line.substring(0, 3).equals(flightTicket.getFlight().getId())) {
                     line = ffbr.readLine();
-                    if (line.equals("") || line == null) break;//예약좌석이 없으면 -> 아무도 예약 안함, 다 공석
+                    if (line == null || line.equals("")) break;//예약좌석이 없으면 -> 아무도 예약 안함, 다 공석
                     String[] reservedSeat = line.split(" ");
                     for (String sn : reservedSeat) {
                         seats[Integer.parseInt(sn)] = "0";
