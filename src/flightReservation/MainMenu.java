@@ -462,7 +462,7 @@ public class MainMenu {
             String input = bf.readLine();
 //             input = input.trim();
 //             String[] inputSeats = input.split("[\\s\\t\\v]");
-            input.replaceAll("[\\s\\t\\v]", "");
+            input = input.replaceAll("[\\s\\t\\v]", "");
             
             //입력한 좌석이 입력한 인원이 일치하지 않을때
             if (input.length() != flightTicket.getNum()*2) {
