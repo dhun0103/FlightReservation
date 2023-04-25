@@ -230,7 +230,7 @@ public class MainMenu {
         else return false;
     }
 
-    public void enterFlight(ArrayList<Flight> flightList) {
+    public void enterFlight(ArrayList<Flight> flightList) throws IOException {
 
         FlightTicket flightTicket = new FlightTicket();
 
@@ -406,8 +406,8 @@ public class MainMenu {
         }
     }
 
-    public String[] inputSeat(FlightTicket flightTicket) {
-        while (true) {
+    public String[] inputSeat(FlightTicket flightTicket) throws IOException {
+        lp: while (true) {
             // 좌석 입력
             for (int i = 1; i <= 52; i++) {
                 String res = flightTicket.getSeat()[i].equals("1") ? Integer.toString(i) : "00";
@@ -458,49 +458,49 @@ public class MainMenu {
             }
             System.out.println(" 입니다.");
             System.out.print("FlightReservation> ");
-            String input = sc.next();
-
-            // 문법 규칙이 틀린 경우
-            if (!input.matches("[0-9]+")) {
-                System.out.println("!오류 : 좌석 번호는 0또는 자연수로 이루어진 두 개의 숫자여야합니다. 좌석 번호를 다시");
-                System.out.println("입력하세요.");
-                continue;
+            String input = bf.readLine();
+            input = input.trim();
+            System.out.println("trim: "+input);
+            String[] inputSeats = input.split("[\\s\\t\\v]");
+            
+            //입력한 좌석이 입력한 인원이 일치하지 않을때
+            if (inputSeats.length != flightTicket.getNum()) {
+            	System.out.println("!오류 : 좌석 번호는 입력한 인원만큼 입력해야 합니다. 좌석 번호를 다시 입력하세요.");
+            	continue;
+            	
             }
-            // 문법 규칙은 올바르지만 의미 규칙이 틀린 경우
-            int[] arr = new int[53];
-            Arrays.fill(arr, 0);
-            input = input.replaceAll(" ", "");
-
-            for (int i = 0; i <= flightTicket.getNum() * 2 - 1; i++) {
-                String key;
-
-                if (input.substring(i, i + 1).equals('0')) key = input.substring(i + 1, i + 2);
-                else key = input.substring(i, i + 2);
-
-                arr[Integer.parseInt(key)]++;
-                i += 2;
+            
+            for (String seat : inputSeats) {//입력한 좌석이 문법형식을 준수하지 않을떼
+            	if (!seat.matches("[0-9]{2}")) {
+            		System.out.println("!오류 : 좌석 번호는 0또는 자연수로 이루어진 두 개의 숫자여야합니다. 좌석 번호를 다시");
+                    System.out.println("입력하세요.");
+                    continue lp;
+            	}
             }
-            int cnt = 0;
-            for (int i = 1; i < 53; i++) {
-                if (arr[i] >= 2) {
-                    cnt++;
-                    break;
-                }
-                if (arr[i] == 1 && brr[i] == 0) {
-                    cnt++;
-                    break;
-                }
+            
+            //입력한 좌석이 여석인지 확인
+            String[] flightSeats = flightTicket.getSeat();
+            for (String seat : inputSeats) {
+            	if (flightSeats[Integer.parseInt(seat)] == "0") {
+            		System.out.println("!오류 : 입력 받은 각각의 좌석 번호는 선택한 클래스의 여석 번호 중 하나여야 합니다. 좌석 번호를 다시 입력하세요.");
+                    continue lp;
+            	}
+            }
+            //입력한 좌석 중 서로 같은 것이 있는 경우
+            if (inputSeats.length > 1) {
+            	for (int i=0; i<inputSeats.length-1; i++) {
+            		for (int j=i+1; j<inputSeats.length; j++) {
+            			if (inputSeats[i].equals(inputSeats[j])) {
+            				System.out.println("!오류 : 입력 받은 각각의 좌석 번호는 모두 달라야 합니다. 좌석 번호를 다시 입력하세요.");
+            				continue lp;
+            			}
+            		}
+            	}
             }
 
-            if (cnt >= 1) {
-                System.out.println("!오류 : 입력 받은 각각의 좌석 번호는 선택한 클래스의 여석 번호 중 하나여야 하며, 각각의");
-                System.out.println("좌석 번호는 모두 달라야 합니다. 좌석 번호를 다시 입력하세요.");
-
-                continue;
-            }
 
             ArrayList<String> seatToReserve = new ArrayList<>();
-            String[] flightSeats = flightTicket.getSeat();
+//            String[] flightSeats = flightTicket.getSeat();
             for (int i = 0; i <= flightTicket.getNum() * 2 - 1; i++) {
                 String key;
 
