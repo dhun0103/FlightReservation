@@ -465,10 +465,9 @@ public class MainMenu {
             input.replaceAll("[\\s\\t\\v]", "");
             
             //입력한 좌석이 입력한 인원이 일치하지 않을때
-            if (inputSeats.length != flightTicket.getNum()) {
+            if (input.length() != flightTicket.getNum()*2) {
             	System.out.println("!오류 : 좌석 번호는 입력한 인원만큼 입력해야 합니다. 좌석 번호를 다시 입력하세요.");
             	continue;
-            	
             }
             
             String[] inputSeats = new String[flightTicket.getNum()];
