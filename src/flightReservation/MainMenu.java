@@ -262,12 +262,13 @@ public class MainMenu {
                 while ((line = ffbr.readLine()) != null) {
                     if (line.substring(0, 3).equals(input)) {//입력한 비행편이 이미 예약한 비행편
                         System.out.println("사용자가 이미 예약한 비행편입니다.");
+                        ffbr.close();
                         continue lp;
                     } else {
                         ffbr.readLine();//좌석 써있는 줄
                     }
                 }
-
+                ffbr.close();
             } catch (IOException e) {
                 // TODO Auto-generated catch block
                 e.printStackTrace();
@@ -460,7 +461,6 @@ public class MainMenu {
             System.out.print("FlightReservation> ");
             String input = bf.readLine();
             input = input.trim();
-            System.out.println("trim: "+input);
             String[] inputSeats = input.split("[\\s\\t\\v]");
             
             //입력한 좌석이 입력한 인원이 일치하지 않을때
