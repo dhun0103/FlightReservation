@@ -18,7 +18,6 @@ import java.util.Scanner;
 public class MainMenu {
 
     private User user;
-    public ArrayList<Flight> list = new ArrayList<Flight>();
 
     MainMenu() {
     }
@@ -71,13 +70,14 @@ public class MainMenu {
         flight.setDest(inputDeptDest(false, flight));
 
         //비행편 출력
-        printFlights(flight);
+        ArrayList<Flight> flightList = printFlights(flight);
         //비행편 선택
-        enterFlight();
+        enterFlight(flightList);
 
     }
 
-    public void printFlights(Flight flight) {
+    public ArrayList<Flight> printFlights(Flight flight) {
+    	ArrayList<Flight> list = new ArrayList<Flight>();
         try {
             BufferedReader ffbr = new BufferedReader(new InputStreamReader(new FileInputStream("./src/FlightReservation-file_data.txt"), "UTF-8"));
             String line;
@@ -114,7 +114,7 @@ public class MainMenu {
             // TODO Auto-generated catch block
             e.printStackTrace();
         }
-
+        return list;
     }
 
     public String inputDate(Flight flight) throws IOException {
@@ -230,12 +230,12 @@ public class MainMenu {
         else return false;
     }
 
-    public void enterFlight() {
+    public void enterFlight(ArrayList<Flight> flightList) {
 
         FlightTicket flightTicket = new FlightTicket();
 
         // 비행편
-        flightTicket.setFlight(inputFlight(flightTicket));
+        flightTicket.setFlight(inputFlight(flightTicket,flightList));
         // 클래스
         flightTicket.setClas(inputClas(flightTicket));
         // 인원
@@ -245,7 +245,7 @@ public class MainMenu {
 
     }
 
-    public Flight inputFlight(FlightTicket flightTicket) {
+    public Flight inputFlight(FlightTicket flightTicket, ArrayList<Flight> list) {
         String res;
         while (true) {
             // 비행편 입력
@@ -485,11 +485,15 @@ public class MainMenu {
             	
             	String line;
             	while((line=bfr.readLine())!=null) {
-            		fr.append(line+"\n");
+            		fr.append(line+"\n");//날짜가 쓰여있는 줄 
             		if (line.equals(flightTicket.getFlight().getDate())) {//일치하는 날짜 발견
             			while(true) {
             				line = bfr.readLine();//비행편
-            				if (line==null || line.equals("")) break;
+            				if (line==null) break;
+            				if (line.equals("")) {
+            					fr.append(line+"\n");
+            					break;
+            				}
             				fr.append(line+"\n");
                 			if (line.substring(0,3).equals(flightTicket.getFlight().getId())) {//해당 비행편 발견
                 				line = bfr.readLine();//예약된 좌석이 쓰여있는 줄
