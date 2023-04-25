@@ -460,14 +460,22 @@ public class MainMenu {
             System.out.println(" 입니다.");
             System.out.print("FlightReservation> ");
             String input = bf.readLine();
-            input = input.trim();
-            String[] inputSeats = input.split("[\\s\\t\\v]");
+//             input = input.trim();
+//             String[] inputSeats = input.split("[\\s\\t\\v]");
+            input.replaceAll("[\\s\\t\\v]", "");
             
             //입력한 좌석이 입력한 인원이 일치하지 않을때
             if (inputSeats.length != flightTicket.getNum()) {
             	System.out.println("!오류 : 좌석 번호는 입력한 인원만큼 입력해야 합니다. 좌석 번호를 다시 입력하세요.");
             	continue;
             	
+            }
+            
+            String[] inputSeats = new String[flightTicket.getNum()];
+            int idx=0;
+            for (int i=0; i<flightTicket.getNum(); i++) {
+            	inputSeats[i] = input.substring(idx,idx+2);
+            	idx+=2;
             }
             
             for (String seat : inputSeats) {//입력한 좌석이 문법형식을 준수하지 않을떼
@@ -499,18 +507,18 @@ public class MainMenu {
             }
 
 
-            ArrayList<String> seatToReserve = new ArrayList<>();
-//            String[] flightSeats = flightTicket.getSeat();
-            for (int i = 0; i <= flightTicket.getNum() * 2 - 1; i++) {
-                String key;
+//             ArrayList<String> seatToReserve = new ArrayList<>();
+// //            String[] flightSeats = flightTicket.getSeat();
+//             for (int i = 0; i <= flightTicket.getNum() * 2 - 1; i++) {
+//                 String key;
 
-                if (input.substring(i, i + 1).equals('0')) key = input.substring(i + 1, i + 2);
-                else key = input.substring(i, i + 2);
+//                 if (input.substring(i, i + 1).equals('0')) key = input.substring(i + 1, i + 2);
+//                 else key = input.substring(i, i + 2);
 
-                flightSeats[Integer.parseInt(key)] = "0";
-                seatToReserve.add(key);
-                i += 2;
-            }
+//                 flightSeats[Integer.parseInt(key)] = "0";
+//                 seatToReserve.add(key);
+//                 i += 2;
+//             }
             //파일에 작성
             //FlightReservation-file_data 파일에 작성
             try {
@@ -531,7 +539,7 @@ public class MainMenu {
                             fr.append(line + "\n");
                             if (line.substring(0, 3).equals(flightTicket.getFlight().getId())) {//해당 비행편 발견
                                 line = bfr.readLine();//예약된 좌석이 쓰여있는 줄
-                                for (String sn : seatToReserve) {
+                                for (String sn : inputSeats) {
                                     line = line + sn + " ";
                                 }
                                 fr.append(line + "\n");
@@ -560,9 +568,9 @@ public class MainMenu {
             Flight fl = flightTicket.getFlight();
             uf.append(fl.getId() + " " + fl.getDate() + " " + fl.getDept() + " " + fl.getDest() + " " + fl.getComp() + " " + fl.getDir() + "\n");
             uf.append(flightTicket.getNum() + " " + flightTicket.getClas() + " ");
-            for (int i = 0; i < seatToReserve.size(); i++) {
-                uf.append(seatToReserve.get(i));
-                if (i < seatToReserve.size() - 1) uf.append(" ");
+            for (int i = 0; i < inputSeats.length; i++) {
+                uf.append(inputSeats[i]);
+                if (i < inputSeats.length - 1) uf.append(" ");
             }
             uf.append("\n");
             //진짜 작성
