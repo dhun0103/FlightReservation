@@ -77,7 +77,7 @@ public class MainMenu {
     }
 
     public ArrayList<Flight> printFlights(Flight flight) {
-    	ArrayList<Flight> list = new ArrayList<Flight>();
+        ArrayList<Flight> list = new ArrayList<Flight>();
         try {
             BufferedReader ffbr = new BufferedReader(new InputStreamReader(new FileInputStream("./src/FlightReservation-file_data.txt"), "UTF-8"));
             String line;
@@ -235,7 +235,7 @@ public class MainMenu {
         FlightTicket flightTicket = new FlightTicket();
 
         // 비행편
-        flightTicket.setFlight(inputFlight(flightTicket,flightList));
+        flightTicket.setFlight(inputFlight(flightTicket, flightList));
         // 클래스
         flightTicket.setClas(inputClas(flightTicket));
         // 인원
@@ -247,30 +247,31 @@ public class MainMenu {
 
     public Flight inputFlight(FlightTicket flightTicket, ArrayList<Flight> list) {
         String res;
-        lp: while (true) {
+        lp:
+        while (true) {
             // 비행편 입력
             System.out.println("비행편을 입력해주세요.");
             System.out.print("FlightReservation> ");
             String input = sc.next();
             input = input.trim();
-            
+
             //기존에 예약한 비행편인지 확인
             try {
-				BufferedReader ffbr = new BufferedReader(new InputStreamReader(new FileInputStream("./src/user/"+this.user.getId()+".txt"), "UTF-8"));
-				String line = ffbr.readLine();//이름 비밀번호 있는 줄
-				while((line=ffbr.readLine())!=null) {
-					if (line.substring(0,3).equals(input)) {//입력한 비행편이 이미 예약한 비행편
-						System.out.println("사용자가 이미 예약한 비행편입니다.");
-						continue lp;
-					}else {
-						ffbr.readLine();//좌석 써있는 줄
-					}
-				}
-				
-			} catch (IOException e) {
-				// TODO Auto-generated catch block
-				e.printStackTrace();
-			}
+                BufferedReader ffbr = new BufferedReader(new InputStreamReader(new FileInputStream("./src/user/" + this.user.getId() + ".txt"), "UTF-8"));
+                String line = ffbr.readLine();//이름 비밀번호 있는 줄
+                while ((line = ffbr.readLine()) != null) {
+                    if (line.substring(0, 3).equals(input)) {//입력한 비행편이 이미 예약한 비행편
+                        System.out.println("사용자가 이미 예약한 비행편입니다.");
+                        continue lp;
+                    } else {
+                        ffbr.readLine();//좌석 써있는 줄
+                    }
+                }
+
+            } catch (IOException e) {
+                // TODO Auto-generated catch block
+                e.printStackTrace();
+            }
 
             // 비행편 동치 확인
             for (Flight fl : list) {
@@ -282,32 +283,32 @@ public class MainMenu {
             System.out.println("잘못 입력되었습니다.");
         }
     }
-    
+
     public void setFlightSeatState(FlightTicket flightTicket) {
-    	String[] seats = new String[53];
-    	Arrays.fill(seats, "1");
-    	
-    	BufferedReader ffbr;
-		try {
-			ffbr = new BufferedReader(new InputStreamReader(new FileInputStream("./src/FlightReservation-file_data.txt"), "UTF-8"));
-			String line;
-			while ((line = ffbr.readLine()) != null) {
-				if (line.equals("") || line.length() < 3) continue;
-			    if (line.substring(0,3).equals(flightTicket.getFlight().getId())) {
-			        line = ffbr.readLine();
-			        if (line.equals("") || line == null) break;//예약좌석이 없으면 -> 아무도 예약 안함, 다 공석
-			        String[] reservedSeat = line.split(" ");
-			        for (String sn : reservedSeat) {
-			        	seats[Integer.parseInt(sn)] = "0";
-			        }
-			        break;
-			    }
-			}
-			ffbr.close();
-	    } catch (IOException e1) {
-			// TODO Auto-generated catch block
-			e1.printStackTrace();
-		}
+        String[] seats = new String[53];
+        Arrays.fill(seats, "1");
+
+        BufferedReader ffbr;
+        try {
+            ffbr = new BufferedReader(new InputStreamReader(new FileInputStream("./src/FlightReservation-file_data.txt"), "UTF-8"));
+            String line;
+            while ((line = ffbr.readLine()) != null) {
+                if (line.equals("") || line.length() < 3) continue;
+                if (line.substring(0, 3).equals(flightTicket.getFlight().getId())) {
+                    line = ffbr.readLine();
+                    if (line.equals("") || line == null) break;//예약좌석이 없으면 -> 아무도 예약 안함, 다 공석
+                    String[] reservedSeat = line.split(" ");
+                    for (String sn : reservedSeat) {
+                        seats[Integer.parseInt(sn)] = "0";
+                    }
+                    break;
+                }
+            }
+            ffbr.close();
+        } catch (IOException e1) {
+            // TODO Auto-generated catch block
+            e1.printStackTrace();
+        }
         //계산완료
         flightTicket.setSeat(seats);
     }
@@ -330,27 +331,27 @@ public class MainMenu {
                 System.out.println("!오류 : 잘못된입력입니다. 퍼스트 비즈니스 이코노미 중 하나로 다시 입력해주세요.");
                 continue;
             }
-            
+
             setFlightSeatState(flightTicket);
-            
+
             // 클래스 남은 좌석수가 0이면
             int left_seat = 0;
-            if(res.equals("퍼스트")){
+            if (res.equals("퍼스트")) {
                 for (int i = 1; i <= 4; i++) {
                     if (flightTicket.getSeat()[i].equals("1")) left_seat++;
                 }
-            }else if(res.equals("비즈니스")){
+            } else if (res.equals("비즈니스")) {
                 for (int i = 5; i <= 16; i++) {
                     if (flightTicket.getSeat()[i].equals("1")) left_seat++;
                 }
-            }else{
+            } else {
                 for (int i = 17; i <= 52; i++) {
                     if (flightTicket.getSeat()[i].equals("1")) left_seat++;
                 }
             }
-            if(left_seat==0) {
-            	System.out.println("해당 클래스에 여석이 없습니다.");
-            	continue;
+            if (left_seat == 0) {
+                System.out.println("해당 클래스에 여석이 없습니다.");
+                continue;
             }
 
             return res;
@@ -360,21 +361,21 @@ public class MainMenu {
     public int inputNum(FlightTicket flightTicket) {
         int res;
         int left_seat = 0;
-        
-        if(flightTicket.getClas().equals("퍼스트")){
+
+        if (flightTicket.getClas().equals("퍼스트")) {
             for (int i = 1; i <= 4; i++) {
                 if (flightTicket.getSeat()[i].equals("1")) left_seat++;
             }
-        }else if(flightTicket.getClas().equals("비즈니스")){
+        } else if (flightTicket.getClas().equals("비즈니스")) {
             for (int i = 5; i <= 16; i++) {
                 if (flightTicket.getSeat()[i].equals("1")) left_seat++;
             }
-        }else{//이코노미
+        } else {//이코노미
             for (int i = 17; i <= 52; i++) {
                 if (flightTicket.getSeat()[i].equals("1")) left_seat++;
             }
         }
-    
+
 
         while (true) {
             // 인원 입력
@@ -427,22 +428,32 @@ public class MainMenu {
                     }
                 }
             }
+            int[] brr = new int[53];
+            Arrays.fill(brr, 0);
+
             System.out.println("다음 중 선택할 좌석을 입력해주세요. 00으로 표시된 좌석은 이미 예약된 좌석입니다.");
             System.out.print(flightTicket.getClas() + " 석의  잔여 좌석 번호는 ");
             if (flightTicket.getClas().equals("퍼스트")) {
                 for (int i = 1; i < 5; i++) {
-                    if (flightTicket.getSeat()[i].equals("1")) System.out.print("0" + Integer.toString(i) + ", ");
+                    if (flightTicket.getSeat()[i].equals("1")) {
+                        brr[i]++;
+                        System.out.print("0" + Integer.toString(i) + ", ");
+                    }
                 }
             } else if (flightTicket.getClas().equals("비즈니스")) {
                 for (int i = 5; i < 17; i++) {
                     if (flightTicket.getSeat()[i].equals("1")) {
+                        brr[i]++;
                         if (i < 10) System.out.print("0" + Integer.toString(i) + ", ");
                         else System.out.print(i + ", ");
                     }
                 }
             } else {
                 for (int i = 17; i <= 52; i++) {
-                    if (flightTicket.getSeat()[i].equals("1")) System.out.print(i + ", ");
+                    if (flightTicket.getSeat()[i].equals("1")) {
+                        brr[i]++;
+                        System.out.print(i + ", ");
+                    }
                 }
             }
             System.out.println(" 입니다.");
@@ -475,14 +486,19 @@ public class MainMenu {
                     cnt++;
                     break;
                 }
+                if (arr[i] == 1 && brr[i] == 0) {
+                    cnt++;
+                    break;
+                }
             }
-            if (cnt == 1) {
+
+            if (cnt >= 1) {
                 System.out.println("!오류 : 입력 받은 각각의 좌석 번호는 선택한 클래스의 여석 번호 중 하나여야 하며, 각각의");
                 System.out.println("좌석 번호는 모두 달라야 합니다. 좌석 번호를 다시 입력하세요.");
 
                 continue;
             }
-            
+
             ArrayList<String> seatToReserve = new ArrayList<>();
             String[] flightSeats = flightTicket.getSeat();
             for (int i = 0; i <= flightTicket.getNum() * 2 - 1; i++) {
@@ -498,70 +514,70 @@ public class MainMenu {
             //파일에 작성
             //FlightReservation-file_data 파일에 작성
             try {
-            	BufferedReader bfr = new BufferedReader(new InputStreamReader(new FileInputStream("./src/FlightReservation-file_data.txt"), "UTF-8"));
-            	StringBuilder fr = new StringBuilder();
-            	
-            	String line;
-            	while((line=bfr.readLine())!=null) {
-            		fr.append(line+"\n");//날짜가 쓰여있는 줄 
-            		if (line.equals(flightTicket.getFlight().getDate())) {//일치하는 날짜 발견
-            			while(true) {
-            				line = bfr.readLine();//비행편
-            				if (line==null) break;
-            				if (line.equals("")) {
-            					fr.append(line+"\n");
-            					break;
-            				}
-            				fr.append(line+"\n");
-                			if (line.substring(0,3).equals(flightTicket.getFlight().getId())) {//해당 비행편 발견
-                				line = bfr.readLine();//예약된 좌석이 쓰여있는 줄
-                				for (String sn : seatToReserve) {
-                					line = line + sn + " ";
-                				}
-                				fr.append(line+"\n");
-                			} else {//해당날짜 다른 비행편
-                				fr.append(bfr.readLine()+"\n");//좌석이 쓰여있는 줄 그냥 추가
-                			}
-            			}
-            		}
-            	}
-            	bfr.close();
-            	//진짜 작성
-            	BufferedWriter bfw = new BufferedWriter(new OutputStreamWriter(new FileOutputStream("./src/FlightReservation-file_data.txt"),"UTF-8"));
-            	bfw.write(fr.toString());
-            	bfw.flush();
-            	bfw.close();
-				
-			} catch (UnsupportedEncodingException | FileNotFoundException e) {
-				// TODO Auto-generated catch block
-				e.printStackTrace();
-			} catch (IOException e) {
-				// TODO Auto-generated catch block
-				e.printStackTrace();
-			}
+                BufferedReader bfr = new BufferedReader(new InputStreamReader(new FileInputStream("./src/FlightReservation-file_data.txt"), "UTF-8"));
+                StringBuilder fr = new StringBuilder();
+
+                String line;
+                while ((line = bfr.readLine()) != null) {
+                    fr.append(line + "\n");//날짜가 쓰여있는 줄
+                    if (line.equals(flightTicket.getFlight().getDate())) {//일치하는 날짜 발견
+                        while (true) {
+                            line = bfr.readLine();//비행편
+                            if (line == null) break;
+                            if (line.equals("")) {
+                                fr.append(line + "\n");
+                                break;
+                            }
+                            fr.append(line + "\n");
+                            if (line.substring(0, 3).equals(flightTicket.getFlight().getId())) {//해당 비행편 발견
+                                line = bfr.readLine();//예약된 좌석이 쓰여있는 줄
+                                for (String sn : seatToReserve) {
+                                    line = line + sn + " ";
+                                }
+                                fr.append(line + "\n");
+                            } else {//해당날짜 다른 비행편
+                                fr.append(bfr.readLine() + "\n");//좌석이 쓰여있는 줄 그냥 추가
+                            }
+                        }
+                    }
+                }
+                bfr.close();
+                //진짜 작성
+                BufferedWriter bfw = new BufferedWriter(new OutputStreamWriter(new FileOutputStream("./src/FlightReservation-file_data.txt"), "UTF-8"));
+                bfw.write(fr.toString());
+                bfw.flush();
+                bfw.close();
+
+            } catch (UnsupportedEncodingException | FileNotFoundException e) {
+                // TODO Auto-generated catch block
+                e.printStackTrace();
+            } catch (IOException e) {
+                // TODO Auto-generated catch block
+                e.printStackTrace();
+            }
             //유저파일에 작성
             StringBuilder uf = new StringBuilder();
             Flight fl = flightTicket.getFlight();
-            uf.append(fl.getId()+" "+fl.getDate()+" "+fl.getDept()+" "+fl.getDest()+" "+fl.getComp()+" "+fl.getDir()+"\n");
-            uf.append(flightTicket.getNum()+" "+flightTicket.getClas()+" ");
-            for (int i=0; i<seatToReserve.size(); i++) {
-            	uf.append(seatToReserve.get(i));
-            	if (i<seatToReserve.size()-1) uf.append(" ");
+            uf.append(fl.getId() + " " + fl.getDate() + " " + fl.getDept() + " " + fl.getDest() + " " + fl.getComp() + " " + fl.getDir() + "\n");
+            uf.append(flightTicket.getNum() + " " + flightTicket.getClas() + " ");
+            for (int i = 0; i < seatToReserve.size(); i++) {
+                uf.append(seatToReserve.get(i));
+                if (i < seatToReserve.size() - 1) uf.append(" ");
             }
             uf.append("\n");
             //진짜 작성
             BufferedWriter ubf;
-			try {
-				ubf = new BufferedWriter(new OutputStreamWriter(new FileOutputStream("./src/user/"+this.user.getId()+".txt",true),"UTF-8"));
-	            ubf.append(uf.toString());
-	            ubf.flush();
-	            ubf.close();
-			} catch (IOException e) {
-				// TODO Auto-generated catch block
-				e.printStackTrace();
-			}
+            try {
+                ubf = new BufferedWriter(new OutputStreamWriter(new FileOutputStream("./src/user/" + this.user.getId() + ".txt", true), "UTF-8"));
+                ubf.append(uf.toString());
+                ubf.flush();
+                ubf.close();
+            } catch (IOException e) {
+                // TODO Auto-generated catch block
+                e.printStackTrace();
+            }
 
-            
+
             System.out.println("해당 비행편 예약이 완료되었습니다. 감사합니다.");
             return flightSeats;
         }
