@@ -55,6 +55,7 @@ public class SignUpInMenu {
 
     }
 
+    //회원가입 시 아이디 중복체크
     String fileidread(String id) {
         String newid=id;
         File folder = new File("./src/user");
@@ -74,6 +75,7 @@ public class SignUpInMenu {
         return newid;
     }
 
+    //user 파일에 회원정보 메모장 생성
     void filewrite(String name,String id,String pw) {
         try {
             File folder = new File("./src/user");
@@ -94,6 +96,7 @@ public class SignUpInMenu {
         System.out.println("이름을 입력하세요.");
         System.out.print("FlightReservation> ");
         String name = scan.nextLine();
+        //이름 문법규칙 체크
         while(name.isBlank()||name.trim()!=name||(!Pattern.matches("^[0-9a-zA-z가-힣]*$",name.replaceAll("\\s","")))) {
             System.out.println("!오류 : 이름은 길이가 1 이상인 한글, 영문 대/소문자, 비개행공백열만으로 구성된 문자열이어야 합니다. 또한 첫 문자와 끝 문자는 비개행공백열1이 아니어야 합니다. 다시 입력해주세요.");
             System.out.print("FlightReservation> ");
@@ -104,6 +107,7 @@ public class SignUpInMenu {
         System.out.print("FlightReservation> ");
         String id = scan.nextLine();
         boolean idcorrect=true;
+        //아이디 문법규칙, 의미규칙 체크
         while(idcorrect) {
             id=fileidread(id);
             if(!(Pattern.matches("^[0-9a-zA-z]*$",id))||id.length()<5||id.length()>10) {
@@ -117,6 +121,7 @@ public class SignUpInMenu {
         System.out.println("비밀번호를 입력하세요.");
         System.out.print("FlightReservation> ");
         String pw = scan.nextLine();
+        //비밀번호 문법규칙 체크
         while(!(Pattern.matches("^[0-9a-zA-z]*$",pw))||pw.length()<8||id.length()>20) {
             System.out.println("!오류 : 비밀번호는 영문 대/소문자와 숫자로만 이루어진 길이가 8이상 20이하인 문자열이어야합니다. 다시 입력해주세요.");
             System.out.print("FlightReservation> ");
@@ -151,6 +156,7 @@ public class SignUpInMenu {
             while(temp) {
                 for(File file:filelist) {
                     if(file.isFile()&&file.canRead()) {
+                    	//해당 아이디를 가진 유저 메모장의 경우
                         if(file.getName().equals(id+".txt")) {
                             isID=false;
                             FileReader filereader = new FileReader(file);
@@ -160,6 +166,7 @@ public class SignUpInMenu {
                             System.out.println("비밀번호를 입력해주세요.");
                             System.out.print("FlightReservation> ");
                             pw=scan.nextLine();
+                            //비밀번호가 일치하는지 체크
                             while(!(arr[arr.length-1].equals(pw))) {
                                 System.out.println("!오류 : 틀린 비밀번호입니다. 다시 입력해주세요.");
                                 System.out.print("FlightReservation> ");
@@ -182,6 +189,7 @@ public class SignUpInMenu {
                         }
                     }
                 }
+                //폴더에 해당 아이디를 가진 유저 메모장이 없는 경우
                 if(isID) {
                     System.out.println("!오류 : 등록되지 않은 아이디입니다. 다시 입력해주세요.");
                     System.out.print("FlightReservation> ");
@@ -190,8 +198,11 @@ public class SignUpInMenu {
             }
             System.out.println("로그인 완료!\n");
 
+            //로그인 완료 시 유저 객체 생성
             User user = new User(id,pw,name,flightTicketList);
+            //메인메뉴 객체 생성
             MainMenu mainmenu = new MainMenu(user);
+            //메인메뉴의 showMenu 함수 호출
             mainmenu.showMenu();
 
         }catch(Exception e) {
