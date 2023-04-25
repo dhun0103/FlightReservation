@@ -250,7 +250,7 @@ public class MyPageMenu {
         while (s) {
             System.out.print("FlightReservation > ");
             String fname = scan.nextLine();  //변경할 비행편 이름
-            fname.trim();
+            fname = fname.trim();
 
             try(Scanner scan1 = new Scanner(oldfile)){  //파일 내용 읽어오기
 
@@ -343,10 +343,6 @@ public class MyPageMenu {
         boolean del2 = oldFlightRe.delete();
         boolean rename2 = newFlightRe.renameTo(oldFlightRe);
 
-        System.out.println(del1);
-        System.out.println(rename1);
-        System.out.println(del2);
-        System.out.println(rename2);
         System.out.println("예약 변경이 완료되었습니다. 감사합니다.");
 
 
@@ -394,7 +390,7 @@ public class MyPageMenu {
                 System.out.print(business[i]+"     ");
             }
             else
-                System.out.print("00    ");
+                System.out.print("00     ");
             hnum++;
             h = true;
             if(hnum%3==0)
