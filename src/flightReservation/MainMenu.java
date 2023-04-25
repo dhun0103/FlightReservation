@@ -247,12 +247,30 @@ public class MainMenu {
 
     public Flight inputFlight(FlightTicket flightTicket, ArrayList<Flight> list) {
         String res;
-        while (true) {
+        lp: while (true) {
             // 비행편 입력
             System.out.println("비행편을 입력해주세요.");
             System.out.print("FlightReservation> ");
             String input = sc.next();
             input = input.trim();
+            
+            //기존에 예약한 비행편인지 확인
+            try {
+				BufferedReader ffbr = new BufferedReader(new InputStreamReader(new FileInputStream("./src/user/"+this.user.getId()+".txt"), "UTF-8"));
+				String line = ffbr.readLine();//이름 비밀번호 있는 줄
+				while((line=ffbr.readLine())!=null) {
+					if (line.substring(0,3).equals(input)) {//입력한 비행편이 이미 예약한 비행편
+						System.out.println("사용자가 이미 예약한 비행편입니다.");
+						continue lp;
+					}else {
+						ffbr.readLine();//좌석 써있는 줄
+					}
+				}
+				
+			} catch (IOException e) {
+				// TODO Auto-generated catch block
+				e.printStackTrace();
+			}
 
             // 비행편 동치 확인
             for (Flight fl : list) {
