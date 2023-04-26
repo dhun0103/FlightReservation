@@ -460,8 +460,16 @@ public class MainMenu {
             System.out.println(" 입니다.");
             System.out.print("FlightReservation> ");
             String input = bf.readLine();
-//             input = input.trim();
-//             String[] inputSeats = input.split("[\\s\\t\\v]");
+            
+            //공백 제거 전 01 0 103 같은 문법규칙 미준수 확인
+            String[] splited_input = input.split("[\\s\\t\\v]*");
+            for (String el : splited_input) {
+            	if (el.length() != 2) {
+            		System.out.println("!오류 : 좌석 번호는 0또는 자연수로 이루어진 두 개의 숫자여야합니다. 좌석 번호를 다시 입력하세요.");
+                    continue lp;
+            	}
+            }
+            
             input = input.replaceAll("[\\s\\t\\v]", "");
             
             //입력한 좌석이 입력한 인원이 일치하지 않을때
