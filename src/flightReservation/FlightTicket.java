@@ -7,6 +7,8 @@ public class FlightTicket {
     private String clas;
     private int num;
     private String[] seat;
+    private int price;
+    private int[] used;
 
     FlightTicket() {
         this.seat = new String[53];
@@ -52,5 +54,20 @@ public class FlightTicket {
 
     public String[] getSeat() {
         return this.seat;
+    }
+    
+    public int getPrice() {
+    	return this.price;
+    }
+    
+    public void setPrice(int price) {
+    	this.price = price;
+    }
+    
+    public int getMil() {
+    	int sum = 0;
+    	//마일리지 계산
+    	
+    	return sum;
     }
 }

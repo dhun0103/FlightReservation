@@ -8,6 +8,7 @@ public class Flight {
 	private String dest;
 	private String comp;
 	private String dir;
+	private int[] prices;
 	
 	Flight(){}
 	
@@ -18,6 +19,16 @@ public class Flight {
 		this.dest = dest;
 		this.comp = comp;
 		this.dir = dir;
+	}
+	
+	Flight(String id, String date, String dept, String dest, String comp, String dir, int[] prices){
+		this.id = id;
+		this.date = date;
+		this.dept = dept;
+		this.dest = dest;
+		this.comp = comp;
+		this.dir = dir;
+		this.prices = prices;
 	}
 	
 	public String getId() {
@@ -54,6 +65,12 @@ public class Flight {
 	
 	public String getDir() {
 		return this.dir;
+	}
+	
+	public int getPriceByClass(String clas) {
+		if (clas.equals("이코노미")) return this.prices[0];
+		else if (clas.equals("비즈니스")) return this.prices[1];
+		else return this.prices[2];//퍼스트
 	}
 
 }
