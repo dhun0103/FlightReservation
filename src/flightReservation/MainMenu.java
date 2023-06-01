@@ -85,8 +85,9 @@ public class MainMenu {
                 if (line.equals(flight.getDate())) {//입력한 날짜와 일치하는 줄을 만나면
                     while (!((line = ffbr.readLine()) == null || line.equals(""))) {
                         String[] info = line.split(" ");
+                        int[] prices = {Integer.parseInt(info[5]), Integer.parseInt(info[6]), Integer.parseInt(info[7])};
                         if (info[1].equals(flight.getDept()) && info[2].equals(flight.getDest())) {
-                            Flight fl = new Flight(info[0], flight.getDate(), info[1], info[2], info[3], info[4]);
+                            Flight fl = new Flight(info[0], flight.getDate(), info[1], info[2], info[3], info[4], prices);
                             list.add(fl);
                         }
                         ffbr.readLine();//좌석 줄은 뛰어넘기
@@ -513,19 +514,6 @@ public class MainMenu {
             	}
             }
 
-
-//             ArrayList<String> seatToReserve = new ArrayList<>();
-// //            String[] flightSeats = flightTicket.getSeat();
-//             for (int i = 0; i <= flightTicket.getNum() * 2 - 1; i++) {
-//                 String key;
-
-//                 if (input.substring(i, i + 1).equals('0')) key = input.substring(i + 1, i + 2);
-//                 else key = input.substring(i, i + 2);
-
-//                 flightSeats[Integer.parseInt(key)] = "0";
-//                 seatToReserve.add(key);
-//                 i += 2;
-//             }
             //파일에 작성
             //FlightReservation-file_data 파일에 작성
             try {
