@@ -9,4 +9,10 @@ public class User {
 	private String name;
 	private ArrayList<FlightTicket> flightTicketList;
 
+    public int getMil() {
+    	int sum = 0;
+    	//마일리지 계산
+    	
+    	return sum;
+    }
 }

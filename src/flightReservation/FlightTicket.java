@@ -63,11 +63,4 @@ public class FlightTicket {
     public void setPrice(int price) {
     	this.price = price;
     }
-    
-    public int getMil() {
-    	int sum = 0;
-    	//마일리지 계산
-    	
-    	return sum;
-    }
 }
