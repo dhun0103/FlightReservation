@@ -12,7 +12,7 @@ public class Flight {
 	
 	Flight(){}
 	
-	Flight(String id, String date, String dept, String dest, String comp, String dir){
+	public Flight(String id, String date, String dept, String dest, String comp, String dir){
 		this.id = id;
 		this.date = date;
 		this.dept = dept;

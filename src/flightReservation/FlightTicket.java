@@ -48,8 +48,7 @@ public class FlightTicket {
     }
 
     public void setSeat(String[] seat) {
-        this.seat = new String[53];
-        Arrays.fill(seat, "1");
+        this.seat = seat;
     }
 
     public String[] getSeat() {
