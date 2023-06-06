@@ -6,9 +6,10 @@ public class FlightTicket {
     private Flight flight;
     private String clas;
     private int num;
-    private String[] seat;
-    private int price;
-    private int[] used;
+    private String[] seat;//비행편의 좌석의 예약 여부(0,1)
+    private String[] rseat;//실제 좌석 번호
+    public int price;
+    public int[] used;
 
     FlightTicket() {
         this.seat = new String[53];
@@ -62,4 +63,13 @@ public class FlightTicket {
     public void setPrice(int price) {
     	this.price = price;
     }
+    
+    public void setRseat(String[] rseat) {
+    	this.rseat = rseat;
+    }
+    
+    public String[] getRseat() {
+    	return this.rseat;
+    }
+    
 }
