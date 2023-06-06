@@ -8,7 +8,7 @@ public class Flight {
 	private String dest;
 	private String comp;
 	private String dir;
-	private int[] prices;
+	public int[] prices;
 	
 	Flight(){}
 	
