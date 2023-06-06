@@ -7,6 +7,9 @@ import java.io.FileReader;
 import java.io.FileWriter;
 import java.io.IOException;
 import java.io.PrintWriter;
+import java.util.ArrayList;
+import java.util.Arrays;
+import java.util.List;
 import java.util.Scanner;
 
 public class MyPageMenu {
@@ -19,12 +22,14 @@ public class MyPageMenu {
 
     public MyPageMenu(User user) {
         this.user = user;
-        userfile = "./src/user/"+user.getId()+".txt";	//마이페이지 객체 생성할 때 user의 id를 이용해 userfile에 사용자 파일 이름을 저장해 둠
+        userfile = "./src/user/"+user.getId()+".txt";
         showMyPage();
     }
 
     void showMyPage(){
         int choice = 0;
+        int mileage = 0;
+        mileage = user.getMil();
 
         while(choice != 3) {	//사용자가 3.뒤로가기를 누르거나 예약 내역이 없는 경우가 아니면 마이페이지를 반복해서 출력
 
@@ -56,14 +61,16 @@ public class MyPageMenu {
             if (dummy.isBlank()) {	//dummy가 비어있는 경우(예약 정보가 없음)
                 choice = 3;
                 System.out.println("\n"+user.getName() + "회원님 예약 내역이 없습니다.");
-                System.out.println("메인 메뉴로 돌아가려면 아무 키나 누르세요.");
+                System.out.println("마일리지 : "+mileage);
+                System.out.println("\n메인 메뉴로 돌아가려면 엔터 키를 누르세요.");
                 System.out.print("FlightReservation >");
                 scan.nextLine();
             } else {
                 choice = 0 ;
                 System.out.println("\n"+user.getName() + "회원의 예약 내역입니다.\n");
                 System.out.println(dummy);
-                System.out.println("원하는 메뉴를 선택하세요.\n");
+                System.out.println("마일리지 : "+mileage);
+                System.out.println("\n원하는 메뉴를 선택하세요.\n");
                 System.out.println("1.예약취소\n2.예약변경\n3.뒤로가기");
 
                 while (choice == 0) {
@@ -117,11 +124,13 @@ public class MyPageMenu {
 
             String dummy = "";
 
-            //취소할 의 티켓의 정보를 저장할 변수들
+            //취소할 티켓의 정보를 저장할 변수들
             String fname = null;
             String date = null;
             int num = 0;
             String[] seats = null;
+            int[] used = null;
+            String[] deleteSeat = null;
             //
 
             try(Scanner s = new Scanner(new File(userfile))){
@@ -144,21 +153,53 @@ public class MyPageMenu {
                             seats[j]=flightTicket[i];
                             j++;
                         }
+                        j=0;
+                        used = new int[num];
+                        for(int i=3+num;i<3+2*num;i++) {
+                            used[j]=Integer.parseInt(flightTicket[i]);
+                            j++;
+                        }
                         date = flight[1];
 
-                        System.out.println(flight[0]+" 비행편 예약을 정말로 취소하시겠습니까?(예/아니오)");
-                        while(true) {
-                            System.out.print("FlightReservation >");
-                            String ans = scan.nextLine();
-                            ans = ans.trim();
-                            if(ans.equals("예")){
-                                break;
-                            }else if(ans.equals("아니오")) {
-                                return;
-                            }else {
-                                System.out.println(("!오류 : 예 또는 아니오로 입력해주세요."));
-                            }
+                        deleteSeat = showDelete(fname,seats,used);
+
+                        if(deleteSeat == null)
+                            return;
+
+                        int[] usedCount = {0,0,0};
+                        for(int i=0;i<used.length;i++){
+                            if(used[i] == 0)
+                                usedCount[0]++;
+                            else if(used[i] == 1)
+                                usedCount[1]++;
+                            else
+                                usedCount[2]++;
                         }
+                        int ChangeMoneyNum = Integer.parseInt(flightTicket[2+num]) - (Integer.parseInt(flightTicket[2+num]) / (num-usedCount[2]) * usedCount[1]);
+                        String money = String.valueOf(ChangeMoneyNum);
+                        System.out.println("money: "+flightTicket[2+num]);
+                        if(deleteSeat.length != num) {	//부분 취소인 경우
+                            flightTicket_str = num-deleteSeat.length+" ";
+                            flightTicket_str += flightTicket[1]+" ";
+
+                            List<String> list = new ArrayList<>(Arrays.asList(seats));
+                            for(int i=0;i<deleteSeat.length;i++) {
+                                list.remove(deleteSeat[i]);
+                            }
+                            seats = list.toArray(new String[list.size()]);
+                            for(int i=0;i<seats.length;i++) {
+                                flightTicket_str += seats[i]+" ";
+                            }
+                            flightTicket_str += money+" ";
+                            for(int i=0;i<used.length;i++) {
+                                if(used[i]==0)
+                                    flightTicket_str += used[i]+" ";
+                            }
+
+                            dummy += flight_str+"\r\n";
+                            dummy += flightTicket_str+"\r\n";
+                        }
+
                     }else {
                         flightTicket_str = s.nextLine();
                         dummy += flight_str+"\r\n";
@@ -196,7 +237,7 @@ public class MyPageMenu {
                                     String[] seat = seatstr.split(" ");
                                     int j=0;
                                     for(int i=0;i<seat.length;i++){
-                                        if(j<num && seat[i].equals(seats[j])){
+                                        if(j<deleteSeat.length && seat[i].equals(deleteSeat[j])){
                                             seat[i]=null;
                                             j++;
                                         }
@@ -237,6 +278,116 @@ public class MyPageMenu {
         }
     }
 
+    public String[] showDelete(String fname, String[] seat, int[] used) {
+        int[] usedCount = {0,0,0};
+
+        //0이면 마일리지 사용됨, 1이면 마일리지 사용 가능, 2면 마일리지로 구매한 티켓
+        //현금 결제 : 0이나 1이었던 좌석
+        //0인 좌석은 취소 불가하니깐 1이었던 취소하면 총 지불가격 수정.
+        for(int i=0;i<used.length;i++){
+            if(used[i] == 0)
+                usedCount[0]++;
+            else if(used[i] == 1)
+                usedCount[1]++;
+            else
+                usedCount[2]++;
+        }
+
+        int deleteCount = used.length - usedCount[0];
+        String[] deleteSeat = new String[deleteCount];
+
+        String ans;
+        if(used.length == usedCount[0]){ //전부 다 0인 경우(취소 불가)
+            System.out.println(fname + " 비행편은 취소할 수 없습니다.\n");
+            return null;
+        }//else if (deleteCount>0 && usedCount[2]>0){
+        else if(usedCount[0]>0) {	//0이 하나 이상 포함된 경우(부분 취소일 때)
+
+            System.out.println(fname+" 비행편에서 "+deleteCount+" 좌석만 취소할 수 있습니다. 취소할 좌석을 입력해주세요.");
+
+            while(true) {
+                try{
+                    System.out.print("FlightReservation > ");
+                    String inputSeat = scan.nextLine();  //선택할 자리 입력하기
+                    String a = inputSeat.replaceAll(" ", ""); //공백 제거
+                    String[] inputSeatString = a.split("");  //한글자씩 넣어주기.
+
+                    for(String s : inputSeatString){ //숫자 아니라면 예외 발생 //문법규칙부합X
+                        int err = Integer.parseInt(s);
+                    }
+
+                    if(inputSeatString.length == deleteCount*2){  //의미규칙부합X
+                        //좌석 수를 알맞게 입력했다면
+                        for(int i=0;i<deleteCount;i++)
+                            deleteSeat[i] = inputSeatString[i*2]+inputSeatString[i*2+1];
+                        //좌석 번호를 String으로 newSeat에 저장하기
+                        int ll = 0;
+                        int ii = 0;
+                        for(int i=0;i<deleteCount;i++){
+                            for(int j=i+1;j<deleteCount;j++){  //같은 좌석을 여러 번 입력하는 경우 거르기 위함
+                                if(deleteSeat[i].equals(deleteSeat[j])){
+                                    ll++;
+                                }}
+                            for(String r : seat){ //기존 예약 좌석이 아닌 범위의 좌석을 입력하는 경우 거르기 위함
+                                if(r==null)
+                                    r = " ";
+                                if(r.equals(deleteSeat[i]))
+                                    ii++;
+                            }
+                        }
+                        if(ll==0 && ii==deleteCount) break;//return deleteSeat;
+                        else System.out.println("!오류 : 입력 받은 각각의 좌석 번호는 예약한 좌석의 여석 번호 중 하나여야 하며, " +
+                                "각각의 좌석 번호는 모두 달라야 합니다. 좌석 번호를 다시 입력하세요.");
+                    }
+                    else{
+                        System.out.println("!오류 : "+deleteCount+" 좌석만 취소할 수 있습니다. 좌석 번호를 다시 입력하세요.");
+                    }
+                }catch (NumberFormatException e){
+                    System.out.println("!오류 : 좌석 번호는 0또는 자연수로 이루어진 두 개의 숫자여야합니다. 좌석 번호를 다시 입력하세요.");
+                }
+            }
+
+            if(usedCount[2]>0){
+                System.out.println("A20 비행편 예약시 사용된 마일리지는 환급되지 않습니다.");
+            }
+            while(true){
+                //System.out.println("A20 비행편 예약시 사용된 마일리지는 환급되지 않습니다.");
+                System.out.println("정말로 취소하시겠습니까?(예/아니오)");
+                System.out.print("FlightReservation >");
+                ans = scan.nextLine();
+                ans = ans.trim();
+                if(ans.equals("예")){
+                    break;
+                }else if(ans.equals("아니오")) {
+                    return null;
+                }else {
+                    System.out.println(("!오류 : 예 또는 아니오로 입력해주세요."));
+                }
+            }
+            return deleteSeat;
+
+        }else{	//0이 포함되지 않은 경우(전체 취소 가능할 때)
+            if(usedCount[2]>0){
+                System.out.println("A20 비행편 예약시 사용된 마일리지는 환급되지 않습니다.");
+            }
+            while(true){
+                System.out.println("정말로 취소하시겠습니까?(예/아니오)");
+                System.out.print("FlightReservation >");
+                ans = scan.nextLine();
+                ans = ans.trim();
+                if(ans.equals("예")){
+                    break;
+                }else if(ans.equals("아니오")) {
+                    return null;
+                }else {
+                    System.out.println(("!오류 : 예 또는 아니오로 입력해주세요."));
+                }
+            }
+            return seat;
+        }
+
+    }
+
     public void change() {
         // TODO Auto-generated method stub
 
@@ -269,7 +420,7 @@ public class MyPageMenu {
                     String[] flight = flight_str.split(" "); //비행편 이름 골라내기 위해서
 
                     String flightTicket_str = scan1.nextLine(); //비행기 티켓 정보 line
-                    String[] flightTicket = flightTicket_str.split(" "); //인원, 클래스, 좌석번호 구분하기
+                    String[] flightTicket = flightTicket_str.split(" "); //인원, 클래스, 좌석번호, 가격, used 구분하기
 
                     if(flight[0].equals(fname)) { //비행편 이름이 같다면; flight[0]에 비행편 이름 저장되어있음;
                         //좌석 변경해서 저장하기;
@@ -316,7 +467,10 @@ public class MyPageMenu {
                                     printWriter2.print(a+" ");
                                 }
                                 printWriter2.println();
-
+                                printWriter1.print(flightTicket[2+num]+ " ");
+                                for(int i=1;i<=num;i++){
+                                    printWriter1.print(flightTicket[2+num+i]+ " ");
+                                }
                             }
                         }
                         fileWriter2.close();
