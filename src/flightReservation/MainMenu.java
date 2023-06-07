@@ -14,6 +14,7 @@ import java.time.LocalDate;
 import java.util.ArrayList;
 import java.util.Arrays;
 import java.util.Scanner;
+import java.util.regex.Pattern;
 
 public class MainMenu {
 
@@ -363,7 +364,7 @@ public class MainMenu {
         System.out.println("해당 비행편 예약이 완료되었습니다. 감사합니다.");
     }
     
-    public StringBuilder payWithMileage(FlightTicket flightTicket, int mileage) {
+    public StringBuilder payWithMileage(FlightTicket flightTicket, int mileage) throws IOException {
     	int one_ticket_price = flightTicket.getFlight().getPriceByClass(flightTicket.getClas());
     	int num_available = mileage / one_ticket_price;
     	boolean need_extra_pay = false;
@@ -439,8 +440,77 @@ public class MainMenu {
     	return sb;
     }
     
-    public void payWithCard() {
-    	
+    public void payWithCard() throws IOException {
+        inputCardComp();
+        inputCVC();
+        inputCardNum();
+    }
+
+    public void inputCardComp() throws IOException {
+
+        System.out.println("결제 가능한 카드사들입니다. 결제하실 카드사의 번호를 입력해주세요.");
+        System.out.println("1. 현대카드\n2. 국민카드\n3. 하나카드\n4. 삼성카드\n5. 롯데카드\n6. 우리카드\n7. 신한카드\n");
+
+        while(true){
+            System.out.print("FlightReservation> ");
+            String cardComp = bf.readLine();
+
+            // 정규표현식 생성
+            String regex = "^[1-7](\\.)?$";
+
+            if (Pattern.matches(regex, cardComp)) {
+                break;
+            } else {
+                if(cardComp.matches("^[1-9]\\d*(\\.)?$")){
+                    System.out.println("!오류: 입력받은 수는 카드사의 종류에 없고 1 이상 7 이하의 정수여야합니다. 다시\n입력해주세요.\n");
+                }else{
+                    System.out.println("!오류 : 카드사는 숫자로만 입력하거나 숫자”.”으로만 입력해야합니다. 또한,\n비개행공백열0이 들어갈 수 없습니다. 다시 입력해주세요.\n");
+                }
+            }
+        }
+    }
+
+    public void inputCVC() throws IOException {
+
+        System.out.println("입력하신 카드의 cvc를 입력해주세요.");
+
+        while(true){
+            System.out.print("FlightReservation> ");
+            String cvc = bf.readLine();
+
+            // 정규표현식 생성
+            String regex = "^([1-9]\\d{2})$";
+
+            if (Pattern.matches(regex, cvc)) {
+                break;
+            } else {
+                if(cvc.matches("^[1-9]\\d*?$")){
+                    System.out.println("!오류 : cvc는 100 이상 999 이하의 정수여야합니다. 다시 입력해주세요.\n");
+                }else{
+                    System.out.println("!오류 : cvc는 숫자로만 입력해야합니다. 또한, 비개행공백열0이 들어갈 수 없습니다. 다시\n입력해주세요.\n");
+                }
+            }
+        }
+    }
+
+    public void inputCardNum() throws IOException {
+
+        System.out.println("입력하신 카드의 카드번호를 입력해주세요.");
+
+        while(true){
+            System.out.print("FlightReservation> ");
+            String cardNum = bf.readLine();
+
+            //정규표현식 생성
+            String regex = "^(?:(?:\\d{4}\\s+)+\\d{4}|(?:\\d{4}-)+\\d{4})$";
+
+            if (Pattern.matches(regex, cardNum)) {
+                System.out.println("해당 비행편 예약이 완료되었습니다. 감사합니다.\n");
+                break;
+            } else {
+                System.out.println("!오류 : 카드 번호 입력은 0000-0000-0000-0000 또는 0000␣0000␣0000␣0000과 같은\n형식이어야합니다. 다시 입력해주세요.\n");
+            }
+        }
     }
 
     public Flight inputFlight(FlightTicket flightTicket, ArrayList<Flight> list) {
