@@ -14,6 +14,7 @@ import java.time.LocalDate;
 import java.util.ArrayList;
 import java.util.Arrays;
 import java.util.Scanner;
+import java.util.regex.Pattern;
 
 public class MainMenu {
 
@@ -72,8 +73,9 @@ public class MainMenu {
         //비행편 출력
         ArrayList<Flight> flightList = printFlights(flight);
         //비행편 선택
-        enterFlight(flightList);
-
+        FlightTicket flightTicket = enterFlight(flightList);//*
+        //결제
+        pay(flightTicket);//*
     }
 
     public ArrayList<Flight> printFlights(Flight flight) {
@@ -85,8 +87,9 @@ public class MainMenu {
                 if (line.equals(flight.getDate())) {//입력한 날짜와 일치하는 줄을 만나면
                     while (!((line = ffbr.readLine()) == null || line.equals(""))) {
                         String[] info = line.split(" ");
+                        int[] prices = {Integer.parseInt(info[5]), Integer.parseInt(info[6]), Integer.parseInt(info[7])};
                         if (info[1].equals(flight.getDept()) && info[2].equals(flight.getDest())) {
-                            Flight fl = new Flight(info[0], flight.getDate(), info[1], info[2], info[3], info[4]);
+                            Flight fl = new Flight(info[0], flight.getDate(), info[1], info[2], info[3], info[4], prices);
                             list.add(fl);
                         }
                         ffbr.readLine();//좌석 줄은 뛰어넘기
@@ -230,7 +233,7 @@ public class MainMenu {
         else return false;
     }
 
-    public void enterFlight(ArrayList<Flight> flightList) throws IOException {
+    public FlightTicket enterFlight(ArrayList<Flight> flightList) throws IOException {
 
         FlightTicket flightTicket = new FlightTicket();
 
@@ -241,8 +244,273 @@ public class MainMenu {
         // 인원
         flightTicket.setNum(inputNum(flightTicket));
         // 좌석
-        flightTicket.setSeat(inputSeat(flightTicket));
+        flightTicket.setRseat(inputSeat(flightTicket));
+        
+        return flightTicket;
+    }
+    
+    public void pay(FlightTicket flightTicket) throws IOException {
+    	int[]  used = new int[flightTicket.getNum()];//*
+    	Arrays.fill(used,-1);//*
+    	flightTicket.used = used;//*
+    	StringBuilder sb;//*
+    	int mil = this.user.getMil();
+    	Flight fl = flightTicket.getFlight();
+    	//마일리지와 티켓 한장 값을 비교
+    	if (mil >= fl.getPriceByClass(flightTicket.getClas())) {
+    		while(true) {
+    			System.out.println("마일리지 사용이 가능합니다. 결제 방식을 선택해주세요.");
+    			System.out.print("FlightReservation> ");
+    			String input = bf.readLine();
+    			if (input.equals("카드")) {
+    				//카드 결제
+    				payWithCard();
+    			}else if (input.equals("마일리지")) {
+    				sb = payWithMileage(flightTicket, mil);//*
+    			}else {
+    				System.out.println("!오류 : “카드” 또는 “마일리지”로 입력해주세요.");
+    				continue;
+    			}
+    			break;//카드나 마일리지를 입력한 경우에만
+    		}
+    	} else {//마일리지 사용 불가
+    		//카드 결제
+    		payWithCard();
+    	}
+    	//마일리지 결제 과정 없이 바로 카드 결제한 경우, used 배열 -1 -> 1로 수정 필요 //*
+    	for (int i=0; i<flightTicket.used.length; i++) {
+    		if (flightTicket.used[i]==-1) 
+    			flightTicket.used[i] = 1;
+    	}
+    	
+    	//지불 금액 계산 **
+    	int notPayedByMil = 0;
+    	for (int i=0; i<flightTicket.used.length; i++) {
+    		if (flightTicket.used[i] == 1) notPayedByMil++;
+    	}
+    	flightTicket.setPrice(flightTicket.getFlight().getPriceByClass(flightTicket.getClas()) * notPayedByMil);
+    	
+    	//결제 완료 후 파일에 작성 **
+        //FlightReservation-file_data 파일에 작성
+        try {
+            BufferedReader bfr = new BufferedReader(new InputStreamReader(new FileInputStream("./src/FlightReservation-file_data.txt"), "UTF-8"));
+            StringBuilder fr = new StringBuilder();
 
+            String line;
+            while ((line = bfr.readLine()) != null) {
+                fr.append(line + "\n");//날짜가 쓰여있는 줄
+                if (line.equals(flightTicket.getFlight().getDate())) {//일치하는 날짜 발견
+                    while (true) {
+                        line = bfr.readLine();//비행편
+                        if (line == null) break;
+                        if (line.equals("")) {
+                            fr.append(line + "\n");
+                            break;
+                        }
+                        fr.append(line + "\n");
+                        if (line.substring(0, 3).equals(flightTicket.getFlight().getId())) {//해당 비행편 발견
+                            line = bfr.readLine();//예약된 좌석이 쓰여있는 줄
+                            for (String sn : flightTicket.getRseat()) {
+                                line = line + sn + " ";
+                            }
+                            fr.append(line + "\n");
+                        } else {//해당날짜 다른 비행편
+                            fr.append(bfr.readLine() + "\n");//좌석이 쓰여있는 줄 그냥 추가
+                        }
+                    }
+                }
+            }
+            bfr.close();
+            //진짜 작성
+            BufferedWriter bfw = new BufferedWriter(new OutputStreamWriter(new FileOutputStream("./src/FlightReservation-file_data.txt"), "UTF-8"));
+            bfw.write(fr.toString());
+            bfw.flush();
+            bfw.close();
+
+        } catch (UnsupportedEncodingException | FileNotFoundException e) {
+            // TODO Auto-generated catch block
+            e.printStackTrace();
+        } catch (IOException e) {
+            // TODO Auto-generated catch block
+            e.printStackTrace();
+        }
+        //유저파일에 작성
+        StringBuilder uf = new StringBuilder();
+        fl = flightTicket.getFlight();
+        uf.append(fl.getId() + " " + fl.getDate() + " " + fl.getDept() + " " + fl.getDest() + " " + fl.getComp() + " " + fl.getDir() + "\n");
+        uf.append(flightTicket.getNum() + " " + flightTicket.getClas() + " ");
+        String[] inputSeats = flightTicket.getRseat();//*
+        for (int i = 0; i < inputSeats.length; i++) {
+            uf.append(inputSeats[i] + " ");
+        }
+        uf.append(flightTicket.getPrice() + " ");//가격**
+    	for (int i=0; i<flightTicket.used.length; i++) { //마일리지 사용 여부**
+    		uf.append(flightTicket.used[i] + " ");
+    	}
+        uf.append("\n");
+        //진짜 작성
+        BufferedWriter ubf;
+        try {
+            ubf = new BufferedWriter(new OutputStreamWriter(new FileOutputStream("./src/user/" + this.user.getId() + ".txt", true), "UTF-8"));
+            ubf.append(uf.toString());
+            ubf.flush();
+            ubf.close();
+        } catch (IOException e) {
+            // TODO Auto-generated catch block
+            e.printStackTrace();
+        }
+
+
+        System.out.println("해당 비행편 예약이 완료되었습니다. 감사합니다.");
+    }
+    
+    public StringBuilder payWithMileage(FlightTicket flightTicket, int mileage) throws IOException {
+    	int one_ticket_price = flightTicket.getFlight().getPriceByClass(flightTicket.getClas());
+    	int num_available = mileage / one_ticket_price;
+    	boolean need_extra_pay = false;
+    	int limit;//마일리지로 계산 가능한 금액(티켓가격*n배)
+    	if (num_available < flightTicket.getNum()) {//티켓 전부 마일리지로 구매 못하는 경우
+    		limit = one_ticket_price * num_available;
+    		need_extra_pay = true;
+    	} else {//티켓 전부 마일리지로 구매 가능한 경우
+    		limit = one_ticket_price * flightTicket.getNum();
+    	}
+    	
+    	int sum = 0;
+    	StringBuilder sb = new StringBuilder();
+    	try {
+			BufferedReader ubr = new BufferedReader(new InputStreamReader(new FileInputStream("./src/user/" + this.user.getId() + ".txt"), "UTF-8"));
+			String line = ubr.readLine();//첫줄 스킵
+			sb.append(line + "\n");
+			while ((line = ubr.readLine()) != null) {
+				sb.append(line+"\n");
+				String[] date_str = line.split(" ")[1].split("/");
+				int year;
+				if (Integer.parseInt(date_str[0]) > LocalDate.now().getMonth().getValue()) 
+					year=2022;
+				else year = 2023;
+				LocalDate date = LocalDate.of(year, Integer.parseInt(date_str[0]), Integer.parseInt(date_str[1]));
+				line = ubr.readLine();//2 퍼스트 01 02 200000 0 1
+				if (date.isAfter(LocalDate.now().minusMonths(3))) {//3개월 이내 -> 마일리지 계산
+					String[] toks_str = line.split(" ");
+					int nums = Integer.parseInt(toks_str[0]);
+					
+					int[] used = new int[nums];
+					for (int i=0; i<nums; i++) {
+						used[i] = Integer.parseInt(toks_str[2+nums+1+i]);
+					}
+					int notPayedByMil = 0;//0 개수 + 1 개수 (즉 마일리지로 구매X)
+					for (int i=0; i<nums; i++) {
+						if (used[i]==0 || used[i]==1)
+							notPayedByMil++;
+					}
+					int total_price = Integer.parseInt(toks_str[2+nums]);
+					int each_price = total_price / notPayedByMil;
+					
+					for (int i=0; i<nums; i++) {
+						if (used[i]==1) { //마일리지로 전환되지 않은 티켓 -> 마일리지로 전환
+							double mil = 0.05 * each_price;
+							sum += (int) mil;
+							used[i] = 0;//마일리지로 전환됨을 의미
+							if (sum >= limit) { //계산 종료
+								break;
+							}
+						}
+					}
+					
+					line = line.substring(0, line.length()-(2*nums));
+					for (int i=0; i<nums; i++) {
+						line.concat(" "+used[i]);
+					}
+				}
+				sb.append(line+"\n");
+			}
+			ubr.close();
+    	} catch (IOException e) {
+			// TODO Auto-generated catch block
+			e.printStackTrace();
+		}
+    	if (need_extra_pay) {//카드 추가 결제 필요
+    		payWithCard();
+    	}
+    	for (int i=0; i<flightTicket.used.length; i++) { //*
+    		if (i<num_available) flightTicket.used[i] = 2;//마일리지로 구매됨
+    		else flightTicket.used[i] = 1;
+    	}
+    	return sb;
+    }
+    
+    public void payWithCard() throws IOException {
+        inputCardComp();
+        inputCVC();
+        inputCardNum();
+    }
+
+    public void inputCardComp() throws IOException {
+
+        System.out.println("결제 가능한 카드사들입니다. 결제하실 카드사의 번호를 입력해주세요.");
+        System.out.println("1. 현대카드\n2. 국민카드\n3. 하나카드\n4. 삼성카드\n5. 롯데카드\n6. 우리카드\n7. 신한카드\n");
+
+        while(true){
+            System.out.print("FlightReservation> ");
+            String cardComp = bf.readLine();
+
+            // 정규표현식 생성
+            String regex = "^[1-7](\\.)?$";
+
+            if (Pattern.matches(regex, cardComp)) {
+                break;
+            } else {
+                if(cardComp.matches("^[1-9]\\d*(\\.)?$")){
+                    System.out.println("!오류: 입력받은 수는 카드사의 종류에 없고 1 이상 7 이하의 정수여야합니다. 다시\n입력해주세요.\n");
+                }else{
+                    System.out.println("!오류 : 카드사는 숫자로만 입력하거나 숫자”.”으로만 입력해야합니다. 또한,\n비개행공백열0이 들어갈 수 없습니다. 다시 입력해주세요.\n");
+                }
+            }
+        }
+    }
+
+    public void inputCVC() throws IOException {
+
+        System.out.println("입력하신 카드의 cvc를 입력해주세요.");
+
+        while(true){
+            System.out.print("FlightReservation> ");
+            String cvc = bf.readLine();
+
+            // 정규표현식 생성
+            String regex = "^([1-9]\\d{2})$";
+
+            if (Pattern.matches(regex, cvc)) {
+                break;
+            } else {
+                if(cvc.matches("^[1-9]\\d*?$")){
+                    System.out.println("!오류 : cvc는 100 이상 999 이하의 정수여야합니다. 다시 입력해주세요.\n");
+                }else{
+                    System.out.println("!오류 : cvc는 숫자로만 입력해야합니다. 또한, 비개행공백열0이 들어갈 수 없습니다. 다시\n입력해주세요.\n");
+                }
+            }
+        }
+    }
+
+    public void inputCardNum() throws IOException {
+
+        System.out.println("입력하신 카드의 카드번호를 입력해주세요.");
+
+        while(true){
+            System.out.print("FlightReservation> ");
+            String cardNum = bf.readLine();
+
+            //정규표현식 생성
+            String regex = "^(?:(?:\\d{4}\\s+)+\\d{4}|(?:\\d{4}-)+\\d{4})$";
+
+            if (Pattern.matches(regex, cardNum)) {
+                System.out.println("해당 비행편 예약이 완료되었습니다. 감사합니다.\n");
+                break;
+            } else {
+                System.out.println("!오류 : 카드 번호 입력은 0000-0000-0000-0000 또는 0000␣0000␣0000␣0000과 같은\n형식이어야합니다. 다시 입력해주세요.\n");
+            }
+        }
     }
 
     public Flight inputFlight(FlightTicket flightTicket, ArrayList<Flight> list) {
@@ -462,7 +730,7 @@ public class MainMenu {
             String input = bf.readLine();
             
             //공백 제거 전 01 0 103 같은 문법규칙 미준수 확인
-            String[] splited_input = input.split("[\\s\\t\\v]*");
+            String[] splited_input = input.split("[\\s\\t\\v]+");
             for (String el : splited_input) {
             	if (el.length() != 2) {
             		System.out.println("!오류 : 좌석 번호는 0또는 자연수로 이루어진 두 개의 숫자여야합니다. 좌석 번호를 다시 입력하세요.");
@@ -513,88 +781,8 @@ public class MainMenu {
             	}
             }
 
-
-//             ArrayList<String> seatToReserve = new ArrayList<>();
-// //            String[] flightSeats = flightTicket.getSeat();
-//             for (int i = 0; i <= flightTicket.getNum() * 2 - 1; i++) {
-//                 String key;
-
-//                 if (input.substring(i, i + 1).equals('0')) key = input.substring(i + 1, i + 2);
-//                 else key = input.substring(i, i + 2);
-
-//                 flightSeats[Integer.parseInt(key)] = "0";
-//                 seatToReserve.add(key);
-//                 i += 2;
-//             }
-            //파일에 작성
-            //FlightReservation-file_data 파일에 작성
-            try {
-                BufferedReader bfr = new BufferedReader(new InputStreamReader(new FileInputStream("./src/FlightReservation-file_data.txt"), "UTF-8"));
-                StringBuilder fr = new StringBuilder();
-
-                String line;
-                while ((line = bfr.readLine()) != null) {
-                    fr.append(line + "\n");//날짜가 쓰여있는 줄
-                    if (line.equals(flightTicket.getFlight().getDate())) {//일치하는 날짜 발견
-                        while (true) {
-                            line = bfr.readLine();//비행편
-                            if (line == null) break;
-                            if (line.equals("")) {
-                                fr.append(line + "\n");
-                                break;
-                            }
-                            fr.append(line + "\n");
-                            if (line.substring(0, 3).equals(flightTicket.getFlight().getId())) {//해당 비행편 발견
-                                line = bfr.readLine();//예약된 좌석이 쓰여있는 줄
-                                for (String sn : inputSeats) {
-                                    line = line + sn + " ";
-                                }
-                                fr.append(line + "\n");
-                            } else {//해당날짜 다른 비행편
-                                fr.append(bfr.readLine() + "\n");//좌석이 쓰여있는 줄 그냥 추가
-                            }
-                        }
-                    }
-                }
-                bfr.close();
-                //진짜 작성
-                BufferedWriter bfw = new BufferedWriter(new OutputStreamWriter(new FileOutputStream("./src/FlightReservation-file_data.txt"), "UTF-8"));
-                bfw.write(fr.toString());
-                bfw.flush();
-                bfw.close();
-
-            } catch (UnsupportedEncodingException | FileNotFoundException e) {
-                // TODO Auto-generated catch block
-                e.printStackTrace();
-            } catch (IOException e) {
-                // TODO Auto-generated catch block
-                e.printStackTrace();
-            }
-            //유저파일에 작성
-            StringBuilder uf = new StringBuilder();
-            Flight fl = flightTicket.getFlight();
-            uf.append(fl.getId() + " " + fl.getDate() + " " + fl.getDept() + " " + fl.getDest() + " " + fl.getComp() + " " + fl.getDir() + "\n");
-            uf.append(flightTicket.getNum() + " " + flightTicket.getClas() + " ");
-            for (int i = 0; i < inputSeats.length; i++) {
-                uf.append(inputSeats[i]);
-                if (i < inputSeats.length - 1) uf.append(" ");
-            }
-            uf.append("\n");
-            //진짜 작성
-            BufferedWriter ubf;
-            try {
-                ubf = new BufferedWriter(new OutputStreamWriter(new FileOutputStream("./src/user/" + this.user.getId() + ".txt", true), "UTF-8"));
-                ubf.append(uf.toString());
-                ubf.flush();
-                ubf.close();
-            } catch (IOException e) {
-                // TODO Auto-generated catch block
-                e.printStackTrace();
-            }
-
-
-            System.out.println("해당 비행편 예약이 완료되었습니다. 감사합니다.");
-            return flightSeats;
+            
+            return inputSeats;
         }
     }
 }
