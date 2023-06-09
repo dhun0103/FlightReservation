@@ -81,10 +81,12 @@ public class User {
 						}
 					}
 					
-					int total_price = Integer.parseInt(toks_str[2+nums]);
-					int each_price = total_price / notPayedByMil;
-					double mil = 0.05 * notUsedAsMil * each_price;
-					sum += (int) mil;
+					if (notPayedByMil > 0) {//마일리지로만 구매한 경우
+						int total_price = Integer.parseInt(toks_str[2+nums]);
+						int each_price = total_price / notPayedByMil;
+						double mil = 0.05 * notUsedAsMil * each_price;
+						sum += (int) mil;
+					}
 				}
 			}
 			ubr.close();

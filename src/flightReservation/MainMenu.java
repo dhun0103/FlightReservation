@@ -250,10 +250,10 @@ public class MainMenu {
     }
     
     public void pay(FlightTicket flightTicket) throws IOException {
-    	int[]  used = new int[flightTicket.getNum()];//*
+    	int[] used = new int[flightTicket.getNum()];//*
     	Arrays.fill(used,-1);//*
     	flightTicket.used = used;//*
-    	StringBuilder sb;//*
+    	StringBuilder sb = null;//*
     	int mil = this.user.getMil();
     	Flight fl = flightTicket.getFlight();
     	//마일리지와 티켓 한장 값을 비교
@@ -343,15 +343,21 @@ public class MainMenu {
         for (int i = 0; i < inputSeats.length; i++) {
             uf.append(inputSeats[i] + " ");
         }
-        uf.append(flightTicket.getPrice() + " ");//가격**
+        uf.append(flightTicket.getPrice());//가격**
     	for (int i=0; i<flightTicket.used.length; i++) { //마일리지 사용 여부**
-    		uf.append(flightTicket.used[i] + " ");
+    		uf.append(" " + flightTicket.used[i]);
     	}
         uf.append("\n");
         //진짜 작성
-        BufferedWriter ubf;
         try {
-            ubf = new BufferedWriter(new OutputStreamWriter(new FileOutputStream("./src/user/" + this.user.getId() + ".txt", true), "UTF-8"));
+        	BufferedWriter ubf;
+            if (sb != null) {//마일리지로 결제한 경우
+            	ubf = new BufferedWriter(new OutputStreamWriter(new FileOutputStream("./src/user/" + this.user.getId() + ".txt"), "UTF-8"));
+            	ubf.write(sb.toString());
+            	ubf.flush();
+            	ubf.close();
+            }
+        	ubf = new BufferedWriter(new OutputStreamWriter(new FileOutputStream("./src/user/" + this.user.getId() + ".txt", true), "UTF-8"));
             ubf.append(uf.toString());
             ubf.flush();
             ubf.close();
@@ -418,10 +424,12 @@ public class MainMenu {
 						}
 					}
 					
-					line = line.substring(0, line.length()-(2*nums));
+					line = line.substring(0, line.length()-(2*nums));//22
+					System.out.println("["+line+"]");
 					for (int i=0; i<nums; i++) {
-						line.concat(" "+used[i]);
+						line = line.concat(" "+used[i]);
 					}
+					System.out.println(line);
 				}
 				sb.append(line+"\n");
 			}
