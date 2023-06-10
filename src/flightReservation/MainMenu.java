@@ -439,6 +439,8 @@ public class MainMenu {
 			e.printStackTrace();
 		}
     	if (need_extra_pay) {//카드 추가 결제 필요
+    		System.out.print("마일리지로 "+num_available+"명의 인원에 대한 항공편이 계산되었습니다.");
+    		System.out.println("나머지 "+(flightTicket.getNum() - num_available) + "명에 대한 항공편 계산이 진행됩니다.");
     		payWithCard();
     	}
     	for (int i=0; i<flightTicket.used.length; i++) { //*
@@ -740,7 +742,7 @@ public class MainMenu {
             //공백 제거 전 01 0 103 같은 문법규칙 미준수 확인
             String[] splited_input = input.split("[\\s\\t\\v]+");
             for (String el : splited_input) {
-            	if (el.length() != 2) {
+            	if (el.length() % 2 == 1) {
             		System.out.println("!오류 : 좌석 번호는 0또는 자연수로 이루어진 두 개의 숫자여야합니다. 좌석 번호를 다시 입력하세요.");
                     continue lp;
             	}
