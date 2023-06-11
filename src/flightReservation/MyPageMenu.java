@@ -172,7 +172,14 @@ public class MyPageMenu {
                             else
                                 usedCount[2]++;
                         }
-                        int ChangeMoneyNum = Integer.parseInt(flightTicket[2+num]) - (Integer.parseInt(flightTicket[2+num]) / (num-usedCount[2]) * usedCount[1]);
+                        int ChangeMoneyNum;
+                        if(num-usedCount[2] == 0 )
+                            ChangeMoneyNum = 0;
+                        else {
+                            ChangeMoneyNum = Integer.parseInt(flightTicket[2+num]) - (Integer.parseInt(flightTicket[2+num]) / (num-usedCount[2]) * usedCount[1]);
+
+                        }
+
                         String money = String.valueOf(ChangeMoneyNum);
                         System.out.println("money: "+flightTicket[2+num]);
                         if(deleteSeat.length != num) {	//부분 취소인 경우
