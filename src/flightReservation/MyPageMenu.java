@@ -1,5 +1,3 @@
-package flightReservation;
-
 import java.io.BufferedReader;
 import java.io.File;
 import java.io.FileNotFoundException;
@@ -28,8 +26,7 @@ public class MyPageMenu {
 
     void showMyPage(){
         int choice = 0;
-        int mileage = 0;
-        //mileage = user.getMil();
+        //int mileage = user.getMil();
 
         while(choice != 3) {	//사용자가 3.뒤로가기를 누르거나 예약 내역이 없는 경우가 아니면 마이페이지를 반복해서 출력
 
@@ -188,12 +185,14 @@ public class MyPageMenu {
                             }
                             seats = list.toArray(new String[list.size()]);
                             for(int i=0;i<seats.length;i++) {
-                                flightTicket_str += seats[i]+" ";
+                                flightTicket_str += seats[i] + " ";
                             }
                             flightTicket_str += money+" ";
                             for(int i=0;i<used.length;i++) {
                                 if(used[i]==0)
-                                    flightTicket_str += used[i]+" ";
+                                    flightTicket_str += used[i];
+                                if(i<used.length-2)
+                                    flightTicket_str += " ";
                             }
 
                             dummy += flight_str+"\r\n";
@@ -309,38 +308,55 @@ public class MyPageMenu {
                 try{
                     System.out.print("FlightReservation > ");
                     String inputSeat = scan.nextLine();  //선택할 자리 입력하기
-                    String a = inputSeat.replaceAll(" ", ""); //공백 제거
-                    String[] inputSeatString = a.split("");  //한글자씩 넣어주기.
+                    String[] inputSeatString2 = inputSeat.split(" ");  //한글자씩 넣어주기.
+                    //String a = inputSeat.replaceAll(" ","");
 
-                    for(String s : inputSeatString){ //숫자 아니라면 예외 발생 //문법규칙부합X
-                        int err = Integer.parseInt(s);
-                    }
+                    boolean t = true;
+                    for(String s : inputSeatString2){ //숫자 아니라면 예외 발생 //문법규칙부합X
+                        //int err = Integer.parseInt(s);
 
-                    if(inputSeatString.length == deleteCount*2){  //의미규칙부합X
-                        //좌석 수를 알맞게 입력했다면
-                        for(int i=0;i<deleteCount;i++)
-                            deleteSeat[i] = inputSeatString[i*2]+inputSeatString[i*2+1];
-                        //좌석 번호를 String으로 newSeat에 저장하기
-                        int ll = 0;
-                        int ii = 0;
-                        for(int i=0;i<deleteCount;i++){
-                            for(int j=i+1;j<deleteCount;j++){  //같은 좌석을 여러 번 입력하는 경우 거르기 위함
-                                if(deleteSeat[i].equals(deleteSeat[j])){
-                                    ll++;
-                                }}
-                            for(String r : seat){ //기존 예약 좌석이 아닌 범위의 좌석을 입력하는 경우 거르기 위함
-                                if(r==null)
-                                    r = " ";
-                                if(r.equals(deleteSeat[i]))
-                                    ii++;
-                            }
+                        if(s.length() % 2 != 0 && !s.isEmpty()){
+
+                            int err = Integer.parseInt(s);
+                            System.out.println("!오류 : 좌석 번호는 0또는 자연수로 이루어진 두 개의 숫자여야합니다. 좌석 번호를 다시 입력하세요.");
+                            t = false;
+                            break;
                         }
-                        if(ll==0 && ii==deleteCount) break;//return deleteSeat;
-                        else System.out.println("!오류 : 입력 받은 각각의 좌석 번호는 예약한 좌석의 여석 번호 중 하나여야 하며, " +
-                                "각각의 좌석 번호는 모두 달라야 합니다. 좌석 번호를 다시 입력하세요.");
                     }
-                    else{
-                        System.out.println("!오류 : "+deleteCount+" 좌석만 취소할 수 있습니다. 좌석 번호를 다시 입력하세요.");
+                    String a;
+                    String[] inputSeatString;
+
+                    if(t == true) {
+                        a = inputSeat.replaceAll(" ", "");
+                        inputSeatString = a.split("");  //한글자씩 넣어주기.
+
+                        if(inputSeatString.length == deleteCount*2){  //의미규칙부합X
+                            //좌석 수를 알맞게 입력했다면
+                            for(int i=0;i<deleteCount;i++)
+                                deleteSeat[i] = inputSeatString[i*2]+inputSeatString[i*2+1];
+                            //좌석 번호를 String으로 newSeat에 저장하기
+                            int ll = 0;
+                            int ii = 0;
+                            for(int i=0;i<deleteCount;i++){
+                                for(int j=i+1;j<deleteCount;j++){  //같은 좌석을 여러 번 입력하는 경우 거르기 위함
+                                    if(deleteSeat[i].equals(deleteSeat[j])){
+                                        ll++;
+                                    }}
+                                for(String r : seat){ //기존 예약 좌석이 아닌 범위의 좌석을 입력하는 경우 거르기 위함
+                                    if(r==null)
+                                        r = " ";
+                                    if(r.equals(deleteSeat[i]))
+                                        ii++;
+                                }
+                            }
+                            if(ll==0 && ii==deleteCount) break;//return deleteSeat;
+                            else System.out.println("!오류 : 입력 받은 각각의 좌석 번호는 예약한 좌석의 여석 번호 중 하나여야 하며, " +
+                                    "각각의 좌석 번호는 모두 달라야 합니다. 좌석 번호를 다시 입력하세요.");
+                        }
+                        else{
+                            System.out.println("!오류 : "+deleteCount+" 좌석만 취소할 수 있습니다. 좌석 번호를 다시 입력하세요.");
+                        }
+
                     }
                 }catch (NumberFormatException e){
                     System.out.println("!오류 : 좌석 번호는 0또는 자연수로 이루어진 두 개의 숫자여야합니다. 좌석 번호를 다시 입력하세요.");
@@ -666,40 +682,56 @@ public class MyPageMenu {
             try{
                 System.out.print("FlightReservation > ");
                 String inputSeat = scan.nextLine();  //선택할 자리 입력하기
-                String a = inputSeat.replaceAll(" ", "");
-                String[] inputSeatString = a.split("");  //한글자씩 넣어주기.
+                String[] inputSeatString2 = inputSeat.split(" ");  //한글자씩 넣어주기.
+                //String a = inputSeat.replaceAll(" ","");
 
-                for(String s : inputSeatString){ //숫자 아니라면 예외 발생 //문법규칙부합X
-                    int err = Integer.parseInt(s);
-                }
+                boolean t = true;
+                for(String s : inputSeatString2){ //숫자 아니라면 예외 발생 //문법규칙부합X
+                    //int err = Integer.parseInt(s);
 
-                if(inputSeatString.length == num*2){  //의미규칙부합X
+                    if(s.length() % 2 != 0 && !s.isEmpty()){
 
-                    for(int i=0;i<num;i++)
-                        newSeat[i] = inputSeatString[i*2]+inputSeatString[i*2+1];
-
-                    int ll = 0;
-                    int ii = 0;
-                    for(int i=0;i<num;i++){
-                        for(int j=i+1;j<num;j++){  //같은 좌석을 여러 번 입력하는 경우 거르기 위함
-                            if(newSeat[i].equals(newSeat[j])){
-                                ll++;
-                            }}
-                        for(String r : seat){ //해당 class가 아닌 범위의 좌석을 입력하는 경우 거르기 위함
-                            if(r==null)
-                                r = " ";
-                            if(r.equals(newSeat[i]))
-                                ii++;
-                        }
+                        int err = Integer.parseInt(s);
+                        System.out.println("!오류 : 좌석 번호는 0또는 자연수로 이루어진 두 개의 숫자여야합니다. 좌석 번호를 다시 입력하세요.");
+                        t = false;
+                        break;
                     }
-                    if(ll==0 && ii==num) return newSeat;
-                    else System.out.println("!오류 : 입력 받은 각각의 좌석 번호는 선택한 클래스의 여석 번호 중 하나여야 하며, " +
-                            "각각의 좌석 번호는 모두 달라야 합니다. 좌석 번호를 다시 입력하세요.");
                 }
-                else{
-                    System.out.println("!오류 : 입력 받은 각각의 좌석 번호는 선택한 클래스의 여석 번호 중 하나여야 하며, " +
-                            "각각의 좌석 번호는 모두 달라야 합니다. 좌석 번호를 다시 입력하세요.");
+                String a;
+                String[] inputSeatString;
+
+                if(t == true){
+                    a = inputSeat.replaceAll(" ","");
+                    inputSeatString = a.split("");  //한글자씩 넣어주기.
+                    if(inputSeatString.length == num*2){  //의미규칙부합X
+
+                        for(int i=0;i<num;i++)
+                            newSeat[i] = inputSeatString[i*2]+inputSeatString[i*2+1];
+
+                        int ll = 0;
+                        int ii = 0;
+                        for(int i=0;i<num;i++){
+                            for(int j=i+1;j<num;j++){  //같은 좌석을 여러 번 입력하는 경우 거르기 위함
+                                if(newSeat[i].equals(newSeat[j])){
+                                    ll++;
+                                }}
+                            for(String r : seat){ //해당 class가 아닌 범위의 좌석을 입력하는 경우 거르기 위함
+                                if(r==null)
+                                    r = " ";
+                                if(r.equals(newSeat[i]))
+                                    ii++;
+                            }
+                        }
+                        if(ll==0 && ii==num) return newSeat;
+                        else System.out.println("!오류 : 입력 받은 각각의 좌석 번호는 선택한 클래스의 여석 번호 중 하나여야 하며, " +
+                                "각각의 좌석 번호는 모두 달라야 합니다. 좌석 번호를 다시 입력하세요.");
+                    }
+                    else{
+                        System.out.println("!오류 : 입력 받은 각각의 좌석 번호는 선택한 클래스의 여석 번호 중 하나여야 하며, " +
+                                "각각의 좌석 번호는 모두 달라야 합니다. 좌석 번호를 다시 입력하세요.");
+                    }
                 }
+
             }catch (NumberFormatException e){
                 System.out.println("!오류 : 좌석 번호는 0또는 자연수로 이루어진 두 개의 숫자여야합니다. 좌석 번호를 다시 입력하세요.");
             }
