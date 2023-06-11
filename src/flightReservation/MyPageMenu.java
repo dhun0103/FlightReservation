@@ -196,10 +196,11 @@ public class MyPageMenu {
                             }
                             flightTicket_str += money+" ";
                             for(int i=0;i<used.length;i++) {
-                                if(used[i]==0)
+                                if(used[i]==0){
                                     flightTicket_str += used[i];
-                                if(i<used.length-2)
-                                    flightTicket_str += " ";
+                                    if(i<used.length-2)
+                                        flightTicket_str += " ";
+                                }
                             }
 
                             dummy += flight_str+"\r\n";
