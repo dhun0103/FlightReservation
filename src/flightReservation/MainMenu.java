@@ -237,10 +237,16 @@ public class MainMenu {
 
         FlightTicket flightTicket = new FlightTicket();
 
-        // 비행편
-        flightTicket.setFlight(inputFlight(flightTicket, flightList));
-        // 클래스
-        flightTicket.setClas(inputClas(flightTicket));
+        String flag;
+        do{
+            // 비행편
+            flightTicket.setFlight(inputFlight(flightTicket, flightList));
+            // 클래스
+            flag = inputClas(flightTicket);
+            flightTicket.setClas(flag);
+
+        }while(flag.equals("1"));
+
         // 인원
         flightTicket.setNum(inputNum(flightTicket));
         // 좌석
@@ -632,7 +638,7 @@ public class MainMenu {
             }
             if (left_seat == 0) {
                 System.out.println("해당 클래스에 여석이 없습니다.");
-                continue;
+                return "1";
             }
 
             return res;
