@@ -494,11 +494,13 @@ public class MainMenu {
             if (Pattern.matches(regex, cvc)) {
                 break;
             } else {
-                if(cvc.matches("^[1-9]\\d*?$")){
+                try {
+                    Integer.parseInt(cvc);
                     System.out.println("!오류 : cvc는 100 이상 999 이하의 정수여야합니다. 다시 입력해주세요.\n");
-                }else{
+                } catch (NumberFormatException e) {
                     System.out.println("!오류 : cvc는 숫자로만 입력해야합니다. 또한, 비개행공백열0이 들어갈 수 없습니다. 다시\n입력해주세요.\n");
                 }
+
             }
         }
     }
@@ -512,7 +514,7 @@ public class MainMenu {
             String cardNum = bf.readLine();
 
             //정규표현식 생성
-            String regex = "^(?:(?:\\d{4}\\s+)+\\d{4}|(?:\\d{4}-)+\\d{4})$";
+            String regex = "^(?:\\d{4}-\\d{4}-\\d{4}-\\d{4}|(?:\\d{4}\\s){3}\\d{4})$"
 
             if (Pattern.matches(regex, cardNum)) {
                 System.out.println("해당 비행편 예약이 완료되었습니다. 감사합니다.\n");
