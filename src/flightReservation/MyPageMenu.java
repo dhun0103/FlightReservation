@@ -195,10 +195,12 @@ public class MyPageMenu {
                                 flightTicket_str += seats[i] + " ";
                             }
                             flightTicket_str += money+" ";
+                            int count=0;
                             for(int i=0;i<used.length;i++) {
                                 if(used[i]==0){
                                     flightTicket_str += used[i];
-                                    if(i<used.length-2)
+                                    count++;
+                                    if(count != usedCount[0])
                                         flightTicket_str += " ";
                                 }
                             }
