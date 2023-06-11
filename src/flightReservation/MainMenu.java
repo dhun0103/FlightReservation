@@ -520,7 +520,7 @@ public class MainMenu {
             String cardNum = bf.readLine();
 
             //정규표현식 생성
-            String regex = "^(?:\\d{4}-\\d{4}-\\d{4}-\\d{4}|(?:\\d{4}\\s){3}\\d{4})$"
+            String regex = "^(?:\\d{4}-\\d{4}-\\d{4}-\\d{4}|(?:\\d{4}\\s){3}\\d{4})$";
 
             if (Pattern.matches(regex, cardNum)) {
                 System.out.println("해당 비행편 예약이 완료되었습니다. 감사합니다.\n");
