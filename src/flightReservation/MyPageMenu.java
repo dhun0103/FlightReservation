@@ -29,7 +29,7 @@ public class MyPageMenu {
     void showMyPage(){
         int choice = 0;
         int mileage = 0;
-        mileage = user.getMil();
+        //mileage = user.getMil();
 
         while(choice != 3) {	//사용자가 3.뒤로가기를 누르거나 예약 내역이 없는 경우가 아니면 마이페이지를 반복해서 출력
 
@@ -61,7 +61,7 @@ public class MyPageMenu {
             if (dummy.isBlank()) {	//dummy가 비어있는 경우(예약 정보가 없음)
                 choice = 3;
                 System.out.println("\n"+user.getName() + "회원님 예약 내역이 없습니다.");
-                System.out.println("마일리지 : "+mileage);
+                System.out.println("마일리지 : "+user.getMil());
                 System.out.println("\n메인 메뉴로 돌아가려면 엔터 키를 누르세요.");
                 System.out.print("FlightReservation >");
                 scan.nextLine();
@@ -69,7 +69,7 @@ public class MyPageMenu {
                 choice = 0 ;
                 System.out.println("\n"+user.getName() + "회원의 예약 내역입니다.\n");
                 System.out.println(dummy);
-                System.out.println("마일리지 : "+mileage);
+                System.out.println("마일리지 : "+user.getMil());
                 System.out.println("\n원하는 메뉴를 선택하세요.\n");
                 System.out.println("1.예약취소\n2.예약변경\n3.뒤로가기");
 
